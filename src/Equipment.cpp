@@ -1010,22 +1010,38 @@ void EquipmentManager::AutoArrangeArmorSlots() {
                           static_cast<int32_t>(std::ceil((visualIconH * 0.5f) + 14.0f * resScale)) :
                           static_cast<int32_t>(std::round(22.0f * resScale));
 
-    const int32_t baseX = this->armorStackBaseX;
-    const int32_t baseY = this->armorStackBaseY;
-    const int32_t minY = 60;          // Never go above screen top edge
-    const int32_t columnWidth = static_cast<int32_t>(std::max(240.0f * resScale, visualIconH + 220.0f * resScale));
+    // Align to the position of the bottom-most slot (unterstes Widget):
+    int32_t baseX = this->armorStackBaseX;
+    int32_t baseY = this->armorStackBaseY;
 
-    int32_t currentX = baseX;
+    // Check if Boots (Slot 37, index 7) has a valid position
+    int bottomIdx = -1;
+    if (this->armor.size() > 7 && this->armor[7].widgetIcon.offsetY > 0 &&
+        (!player || config->Widget.General.showEmptySlots || IsArmorSlotEquipped("37"))) {
+        bottomIdx = 7;
+    } else if (!activeIndices.empty()) {
+        // Find the active slot with the largest Y (physically lowest on screen)
+        bottomIdx = activeIndices[0];
+        for (int idx : activeIndices) {
+            if (this->armor[idx].widgetIcon.offsetY > this->armor[bottomIdx].widgetIcon.offsetY) {
+                bottomIdx = idx;
+            }
+        }
+    } else if (this->armor.size() > 7 && this->armor[7].widgetIcon.offsetY > 0) {
+        bottomIdx = 7;
+    }
+
+    if (bottomIdx >= 0 && this->armor[bottomIdx].widgetIcon.offsetY > 0) {
+        baseX = this->armor[bottomIdx].widgetIcon.offsetX;
+        baseY = this->armor[bottomIdx].widgetIcon.offsetY;
+        this->armorStackBaseX = baseX;
+        this->armorStackBaseY = baseY;
+    }
+
     int32_t currentY = baseY;
 
     for (int idx : activeIndices) {
-        if (currentY < minY) {
-            // Screen edge reached going upwards: start 2nd column next to it!
-            currentX += columnWidth;
-            currentY = baseY;
-        }
-
-        this->armor[idx].widgetIcon.offsetX = currentX;
+        this->armor[idx].widgetIcon.offsetX = baseX;
         this->armor[idx].widgetIcon.offsetY = currentY;
 
         this->armor[idx].widgetName.align = WidgetText::ALIGN_TYPE::LEFT;
@@ -1035,14 +1051,9 @@ void EquipmentManager::AutoArrangeArmorSlots() {
         currentY -= stepY;
     }
 
-    // Also pre-position all inactive slots continuing upwards in the stack, so whenever any slot is enabled, it already starts above the helmet!
+    // Pre-position all inactive slots continuing upwards in the SAME vertical column, so whenever any slot is enabled, it already starts above the helmet!
     for (int idx : inactiveIndices) {
-        if (currentY < minY) {
-            currentX += columnWidth;
-            currentY = baseY;
-        }
-
-        this->armor[idx].widgetIcon.offsetX = currentX;
+        this->armor[idx].widgetIcon.offsetX = baseX;
         this->armor[idx].widgetIcon.offsetY = currentY;
 
         this->armor[idx].widgetName.align = WidgetText::ALIGN_TYPE::LEFT;
@@ -1140,7 +1151,7 @@ void EquipmentManager::ResetToDefaults() {
         config->Widget.General.hudDiamondLeftEnable = true;
         config->Widget.General.hudArmorEnable = true;
         config->Widget.General.hudArmorAutoStack = true;
-        config->Widget.General.showEmptySlots = true;
+        config->Widget.General.showEmptySlots = false;
         config->Widget.General.autoResolutionScale = true;
         config->SaveConfig();
     }
@@ -1264,14 +1275,14 @@ void EquipmentManager::Load() {
             ResetToDefaults();
             Save();
         } else {
-            bool hasZeroArmorPos = false;
+            bool needsArrange = false;
             for (int i = 0; i < 32; i++) {
-                if (this->armor[i].widgetIcon.offsetY == 0) {
-                    hasZeroArmorPos = true;
+                if (this->armor[i].widgetIcon.offsetY == 0 || this->armor[i].widgetIcon.offsetX > 200) {
+                    needsArrange = true;
                     break;
                 }
             }
-            if (hasZeroArmorPos) {
+            if (needsArrange) {
                 AutoArrangeArmorSlots();
                 Save();
             }

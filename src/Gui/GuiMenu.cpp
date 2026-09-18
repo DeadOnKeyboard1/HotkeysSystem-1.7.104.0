@@ -512,10 +512,20 @@ void GuiMenu::DrawEquipment() {
         }
         if (Draw::SliderInt(C_TRANSLATE("_WIDGET_OFFSETX"), &_widget->offsetX, Config::icon_smin, Config::icon_smax,
                             "%d", ImGuiSliderFlags_AlwaysClamp)) {
+            if (equipment->armor.size() > 7 && &equipment->armor[7].widgetIcon == _widget) {
+                equipment->armorStackBaseX = _widget->offsetX;
+                equipment->AutoArrangeArmorSlots();
+                equipment->Save();
+            }
             Reload();
         }
         if (Draw::SliderInt(C_TRANSLATE("_WIDGET_OFFSETY"), &_widget->offsetY, Config::icon_smin, Config::icon_smax,
                             "%d", ImGuiSliderFlags_AlwaysClamp)) {
+            if (equipment->armor.size() > 7 && &equipment->armor[7].widgetIcon == _widget) {
+                equipment->armorStackBaseY = _widget->offsetY;
+                equipment->AutoArrangeArmorSlots();
+                equipment->Save();
+            }
             Reload();
         }
     };
@@ -1521,17 +1531,28 @@ void GuiMenu::ProcessWidgetDragging() {
         } else if (currentDragTarget == ARMOR_STACK) {
             equipment->armorStackBaseX = origArmorBaseX + deltaX;
             equipment->armorStackBaseY = origArmorBaseY + deltaY;
+            if (equipment->armor.size() > 7) {
+                equipment->armor[7].widgetIcon.offsetX = equipment->armorStackBaseX;
+                equipment->armor[7].widgetIcon.offsetY = equipment->armorStackBaseY;
+            }
             equipment->AutoArrangeArmorSlots();
             equipment->CreateAllArmorWidget();
             dragLabel = fmt::format("Armor Stack (Base X: {}, Base Y: {})", equipment->armorStackBaseX, equipment->armorStackBaseY);
             drawList->AddCircle(ImVec2(equipment->armorStackBaseX * S, equipment->armorStackBaseY * S), 25.0f * S, IM_COL32(255, 215, 0, 220), 32, 2.5f);
         } else if (currentDragTarget == ARMOR_SLOT && draggedArmorSlotIndex >= 0 && draggedArmorSlotIndex < static_cast<int>(equipment->armor.size())) {
-            config->Widget.General.hudArmorAutoStack = false;
             equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetX = origSlotX + deltaX;
             equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetY = origSlotY + deltaY;
-            equipment->armor[draggedArmorSlotIndex].CreateWidgetBackground();
-            equipment->armor[draggedArmorSlotIndex].CreateWidgetIcon();
-            equipment->armor[draggedArmorSlotIndex].CreateWidgetText1();
+            if (config->Widget.General.hudArmorAutoStack && draggedArmorSlotIndex == 7) {
+                equipment->armorStackBaseX = equipment->armor[7].widgetIcon.offsetX;
+                equipment->armorStackBaseY = equipment->armor[7].widgetIcon.offsetY;
+                equipment->AutoArrangeArmorSlots();
+                equipment->CreateAllArmorWidget();
+            } else {
+                config->Widget.General.hudArmorAutoStack = false;
+                equipment->armor[draggedArmorSlotIndex].CreateWidgetBackground();
+                equipment->armor[draggedArmorSlotIndex].CreateWidgetIcon();
+                equipment->armor[draggedArmorSlotIndex].CreateWidgetText1();
+            }
             dragLabel = fmt::format("Armor Slot {} (X: {}, Y: {})", draggedArmorSlotIndex + 30, equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetX, equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetY);
             drawList->AddCircle(ImVec2(equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetX * S, equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetY * S), 20.0f * S, IM_COL32(0, 255, 255, 220), 32, 2.0f);
         } else if (currentDragTarget == ARMOR_SLOT_TEXT && draggedArmorSlotIndex >= 0 && draggedArmorSlotIndex < static_cast<int>(equipment->armor.size())) {
