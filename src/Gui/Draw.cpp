@@ -43,13 +43,15 @@ namespace Draw {
 
     void InputButton(uint32_t* _key, const std::string& _id, const std::string& _button,
                          const std::string& _label) {
+        if (!_key) return;
         auto ts = Translator::GetSingleton();
         if (!ts) return;
 
         auto buttonMsg = _button + "##" + _id;
         auto popupID = TRANSLATE("_WAITINPUT") + "##" + _id;
         auto popupMsg = "  " + TRANSLATE("_WAITINPUTMSG") + "  ";
-        auto labelMsg = _label + ImGui::GetKeyName(static_cast<ImGuiKey>(*_key));
+        const char* kn = ImGui::GetKeyName(static_cast<ImGuiKey>(*_key));
+        auto labelMsg = _label + (kn ? kn : "");
 
         auto buttonSize = ImGui::CalcTextSize(_button.c_str());
         if (ImGui::Button(buttonMsg.c_str(), ImVec2(buttonSize.x + 30.0f, 0.0f))) {
@@ -168,16 +170,20 @@ namespace Draw {
     }
 
     bool Combo(const std::vector<std::string>& _items, uint32_t* _current, const std::string& _label) {
-        if (_items.size() == 0) return false;
+        if (_items.empty() || !_current) return false;
+
+        if (*_current >= _items.size()) {
+            *_current = 0;
+        }
 
         auto beforeValue = *_current;
 
         if (ImGui::BeginCombo(_label.c_str(), _items[*_current].c_str())) {
-            for (int i = 0; i < _items.size(); i++) {
+            for (size_t i = 0; i < _items.size(); i++) {
                 bool is_selected = (*_current == i);
-                ImGui::PushID(i);
+                ImGui::PushID(static_cast<int>(i));
                 if (ImGui::Selectable(_items[i].c_str(), is_selected)) {
-                    *_current = i;
+                    *_current = static_cast<uint32_t>(i);
                 }
                 if (is_selected) {
                     ImGui::SetItemDefaultFocus();
@@ -191,6 +197,7 @@ namespace Draw {
     }
 
     bool ComboIcon(std::string* _icon_type, const std::string& _label) {
+        if (!_icon_type) return false;
         auto config = ConfigHandler::GetSingleton();
         if (!config) return false;
 
@@ -204,7 +211,8 @@ namespace Draw {
         }
 
         if (icon_name.size() == 0) {
-            Draw::Combo({"None"}, 0, _label);
+            uint32_t dummy = 0;
+            Draw::Combo({"None"}, &dummy, _label);
             return false;
         }
 
@@ -376,7 +384,8 @@ namespace Draw {
 
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         if (ImGui::BeginPopupModal(hotkey_conflict_msg.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-            auto msgName = fmt::format("\"{}\"", *_conflictName);
+            std::string cName = _conflictName ? *_conflictName : "";
+            auto msgName = fmt::format("\"{}\"", cName);
             auto msg = fmt::format("  {}  ", TRANSLATE("_CONFLICT_MSGC"));
             ImGui::Text(" ");
             ImGui::Text(msg.c_str());

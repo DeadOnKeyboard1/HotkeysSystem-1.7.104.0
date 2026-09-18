@@ -39,6 +39,8 @@ void GuiMenu::DisableInput(bool _status) {
 }
 
 void GuiMenu::Toggle(std::optional<bool> enabled = std::nullopt) {
+    if (!ImGui::GetCurrentContext()) return;
+
     auto dataHandler = DataHandler::GetSingleton();
     if (!dataHandler) return;
 
@@ -315,6 +317,7 @@ void GuiMenu::DrawMain() {
                 }
                 for (int i = 0; i < equipsetVec.size(); i++) {
                     auto equipset = equipsetVec[i];
+                    if (!equipset) continue;
 
                     if (current_opened.load() != i) {
                         ImGui::SetNextItemOpen(false);
@@ -364,6 +367,8 @@ void GuiMenu::DrawMain() {
 void GuiMenu::LoadFont() {
     if (!reload_font.load()) return;
     reload_font.store(false);
+
+    if (!ImGui::GetCurrentContext()) return;
 
     auto& io = ImGui::GetIO();
     auto config = ConfigHandler::GetSingleton();
@@ -1488,10 +1493,10 @@ void GuiMenu::ProcessWidgetDragging() {
         } else if (hoveredTarget == ARMOR_STACK) {
             drawList->AddCircle(ImVec2(equipment->armorStackBaseX * S, equipment->armorStackBaseY * S), 25.0f * S, IM_COL32(255, 215, 0, 180), 32, 2.5f);
             tip = "Armor Stack (Drag to move whole stack)";
-        } else if (hoveredTarget == ARMOR_SLOT && hoveredSlotIndex >= 0) {
+        } else if (hoveredTarget == ARMOR_SLOT && hoveredSlotIndex >= 0 && hoveredSlotIndex < static_cast<int>(equipment->armor.size())) {
             drawList->AddCircle(ImVec2(equipment->armor[hoveredSlotIndex].widgetIcon.offsetX * S, equipment->armor[hoveredSlotIndex].widgetIcon.offsetY * S), 20.0f * S, IM_COL32(255, 215, 0, 180), 32, 2.0f);
             tip = fmt::format("Armor Slot {} ({}) (Drag to move | Hold Shift to move entire stack)", hoveredSlotIndex + 30, GetSlotDescription(hoveredSlotIndex + 30));
-        } else if (hoveredTarget == ARMOR_SLOT_TEXT && hoveredSlotIndex >= 0) {
+        } else if (hoveredTarget == ARMOR_SLOT_TEXT && hoveredSlotIndex >= 0 && hoveredSlotIndex < static_cast<int>(equipment->armor.size())) {
             auto [minPt, maxPt] = GetTextBounds(equipment->armor[hoveredSlotIndex].widgetIcon.offsetX, equipment->armor[hoveredSlotIndex].widgetIcon.offsetY, equipment->armor[hoveredSlotIndex].widgetName.offsetX, equipment->armor[hoveredSlotIndex].widgetName.offsetY, equipment->armor[hoveredSlotIndex].widgetName.align, GetArmorWidgetName(equipment->armor[hoveredSlotIndex].slotid), config->Widget.Equipment.Armor.fontSize);
             drawList->AddRect(minPt, maxPt, IM_COL32(255, 215, 0, 220), 4.0f, 0, 2.0f);
             drawList->AddRectFilled(minPt, maxPt, IM_COL32(255, 215, 0, 40), 4.0f);

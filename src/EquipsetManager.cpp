@@ -59,7 +59,7 @@ void EquipsetManager::Remove(Equipset* _equipset) {
     if (!_equipset) return;
 
     for (auto it = equipsetVec.begin(); it != equipsetVec.end(); ++it) {
-        if (*it == _equipset || (*it)->name == _equipset->name) {
+        if (*it && (*it == _equipset || (*it)->name == _equipset->name)) {
             delete *it;
             equipsetVec.erase(it);
             break;
@@ -87,8 +87,8 @@ std::string EquipsetManager::GetNamePreset() {
 	int suffix = 1;
     while (true) {
 		bool next = false;
-        for (int i = 0; i < equipsetVec.size(); i++) {
-            if (equipsetVec[i]->name == fmt::format("{}{}", result, suffix)) {
+        for (size_t i = 0; i < equipsetVec.size(); i++) {
+            if (equipsetVec[i] && equipsetVec[i]->name == fmt::format("{}{}", result, suffix)) {
                 next = true;
             }
         }
@@ -112,14 +112,15 @@ std::pair<EquipsetManager::VALID_TYPE, std::string> EquipsetManager::IsCreateVal
     }
 
     for (auto equipset : equipsetVec) {
-        if (equipset->name == _name) {
+        if (equipset && equipset->name == _name) {
             return std::make_pair<VALID_TYPE, std::string>(VALID_TYPE::NAME_CONFLICT, (std::string)_name);
         }
     }
 
     if (_hotkey != 0) {
         for (auto equipset : equipsetVec) {
-            if (equipset->hotkey == _hotkey &&
+            if (equipset &&
+                equipset->hotkey == _hotkey &&
                 equipset->modifier1 == _modifier1 &&
                 equipset->modifier2 == _modifier2 &&
                 equipset->modifier3 == _modifier3) {
@@ -141,7 +142,7 @@ std::pair<EquipsetManager::VALID_TYPE, std::string> EquipsetManager::IsEditValid
     }
 
     for (auto equipset : equipsetVec) {
-        if (equipset == _equipset) continue;
+        if (!equipset || equipset == _equipset) continue;
 
         if (equipset->name == _name) {
             return std::make_pair<VALID_TYPE, std::string>(VALID_TYPE::NAME_CONFLICT, (std::string)_name);
@@ -150,7 +151,7 @@ std::pair<EquipsetManager::VALID_TYPE, std::string> EquipsetManager::IsEditValid
 
     if (_hotkey != 0) {
         for (auto equipset : equipsetVec) {
-            if (equipset == _equipset) continue;
+            if (!equipset || equipset == _equipset) continue;
 
             if (equipset->hotkey == _hotkey && equipset->modifier1 == _modifier1 && equipset->modifier2 == _modifier2 &&
                 equipset->modifier3 == _modifier3) {
@@ -180,7 +181,7 @@ uint32_t EquipsetManager::AssignSortOrder() {
 void EquipsetManager::SyncSortOrder() {
     uint32_t MAX = 0;
     for (auto equipset : equipsetVec) {
-        if (equipset->order > MAX) {
+        if (equipset && equipset->order > MAX) {
             MAX = equipset->order;
         }
     }
@@ -213,7 +214,8 @@ void EquipsetManager::ProcessEquip(const uint32_t& _code, bool _modifier1, bool 
     if (gui->isShow()) return;
 
     for (auto equipset : equipsetVec) {
-        if (equipset->hotkey == _code &&
+        if (equipset &&
+            equipset->hotkey == _code &&
             equipset->modifier1 == _modifier1 &&
             equipset->modifier2 == _modifier2 &&
             equipset->modifier3 == _modifier3) {
@@ -271,7 +273,8 @@ void EquipsetManager::CalculateKeydown(const uint32_t& _code, bool _modifier1, b
     if (gui->isShow()) return;
 
     for (auto equipset : equipsetVec) {
-        if (equipset->hotkey == _code &&
+        if (equipset &&
+            equipset->hotkey == _code &&
             equipset->modifier1 == _modifier1 &&
             equipset->modifier2 == _modifier2 &&
             equipset->modifier3 == _modifier3) {
@@ -290,7 +293,7 @@ void EquipsetManager::CalculateKeydown(const uint32_t& _code, bool _modifier1, b
 
 Equipset* EquipsetManager::SearchEquipsetByName(const std::string& _name) {
     for (auto elem : equipsetVec) {
-        if (elem->name == _name) {
+        if (elem && elem->name == _name) {
             return elem;
         }
     }
@@ -308,12 +311,12 @@ void EquipsetManager::ExportEquipsets() {
 
 void EquipsetManager::CreateAllWidget() {
     for (auto elem : equipsetVec) {
-        elem->CreateWidget();
+        if (elem) elem->CreateWidget();
     }
 }
 
 void EquipsetManager::RemoveAllWidget() {
     for (auto elem : equipsetVec) {
-        elem->RemoveWidget();
+        if (elem) elem->RemoveWidget();
     }
 }

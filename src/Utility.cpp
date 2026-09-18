@@ -3,10 +3,15 @@
 
 std::vector<std::string> Utility::Split(const std::string& _str, const std::string& _delimiter) {
     std::vector<std::string> result;
+    if (_delimiter.empty()) {
+        result.push_back(_str);
+        return result;
+    }
+
     std::string str = _str;
 
     while (str.length() != 0) {
-        int index = str.find(_delimiter);
+        size_t index = str.find(_delimiter);
         if (index == std::string::npos) {
             result.push_back(str);
             break;

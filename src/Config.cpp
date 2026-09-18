@@ -306,7 +306,11 @@ void ConfigHandler::SaveConfig() {
 }
 
 std::string ConfigHandler::GetWidgetPath(const std::string& _type) {
-    return widgetMap[_type].path;
+    auto it = widgetMap.find(_type);
+    if (it != widgetMap.end()) {
+        return it->second.path;
+    }
+    return "";
 }
 
 void ConfigHandler::Clear() {

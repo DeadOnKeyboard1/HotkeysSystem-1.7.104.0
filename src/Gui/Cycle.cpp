@@ -22,9 +22,12 @@ namespace Shared::Cycle {
 
         Draw::InputButton(_hotkey, "EquipsetHotkey", TRANSLATE("_EDIT"), TRANSLATE("_EDIT_HOTKEYLABEL"));
 
-        auto msg1 = fmt::format("+ {}", ImGui::GetKeyName(static_cast<ImGuiKey>(config->Settings.modifier1)));
-        auto msg2 = fmt::format("+ {}", ImGui::GetKeyName(static_cast<ImGuiKey>(config->Settings.modifier2)));
-        auto msg3 = fmt::format("+ {}", ImGui::GetKeyName(static_cast<ImGuiKey>(config->Settings.modifier3)));
+        const char* k1 = ImGui::GetKeyName(static_cast<ImGuiKey>(config->Settings.modifier1));
+        const char* k2 = ImGui::GetKeyName(static_cast<ImGuiKey>(config->Settings.modifier2));
+        const char* k3 = ImGui::GetKeyName(static_cast<ImGuiKey>(config->Settings.modifier3));
+        auto msg1 = fmt::format("+ {}", k1 ? k1 : "");
+        auto msg2 = fmt::format("+ {}", k2 ? k2 : "");
+        auto msg3 = fmt::format("+ {}", k3 ? k3 : "");
         ImGui::Checkbox(msg1.c_str(), _modifier1);
         ImGui::Checkbox(msg2.c_str(), _modifier2);
         ImGui::Checkbox(msg3.c_str(), _modifier3);

@@ -58,14 +58,17 @@ void Translator::Load() {
         auto tbl = toml::parse_file(file_path.c_str());
     
         auto nd = tbl["Translate"];
-        for (auto& [key, value] : *nd.as_table()) {
-            auto msg = value.value<std::string>();
-            if (msg.has_value()) {
-                map.insert(make_pair((std::string)key, msg.value()));
-                continue;
-            }
+        auto table = nd.as_table();
+        if (table) {
+            for (auto& [key, value] : *table) {
+                auto msg = value.value<std::string>();
+                if (msg.has_value()) {
+                    map.insert(make_pair((std::string)key, msg.value()));
+                    continue;
+                }
 
-            map.insert(make_pair((std::string)key, (std::string)key));
+                map.insert(make_pair((std::string)key, (std::string)key));
+            }
         }
     
         logger::info("Translation loaded.");

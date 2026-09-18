@@ -6,13 +6,18 @@
 #include "extern/imgui_impl_dx11.h"
 
 LRESULT WndProcHook::thunk(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    auto& io = ImGui::GetIO();
-    if (uMsg == WM_KILLFOCUS) {
-        io.ClearInputCharacters();
-        io.ClearInputKeys();
+    if (ImGui::GetCurrentContext()) {
+        auto& io = ImGui::GetIO();
+        if (uMsg == WM_KILLFOCUS) {
+            io.ClearInputCharacters();
+            io.ClearInputKeys();
+        }
     }
 
-    return func(hWnd, uMsg, wParam, lParam);
+    if (func) {
+        return func(hWnd, uMsg, wParam, lParam);
+    }
+    return DefWindowProcA(hWnd, uMsg, wParam, lParam);
 }
 
 void D3DInitHook::thunk() {

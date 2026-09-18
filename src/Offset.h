@@ -1,6 +1,6 @@
 #pragma once
 
-RE::TESForm* GetDummyDagger() {
+inline RE::TESForm* GetDummyDagger() {
     RE::FormID ID = 0x20163;
     RE::TESForm* dummyDagger = RE::TESForm::LookupByID<RE::TESForm>(ID);
     if (!dummyDagger) {
@@ -9,7 +9,7 @@ RE::TESForm* GetDummyDagger() {
     return dummyDagger;
 }
 
-RE::BGSEquipSlot* GetRightHandSlot() {
+inline RE::BGSEquipSlot* GetRightHandSlot() {
     using func_t = decltype(GetRightHandSlot);
     if (REL::Module::IsAE()) {
         REL::Relocation<func_t> func{REL::ID(23608)};
@@ -20,7 +20,7 @@ RE::BGSEquipSlot* GetRightHandSlot() {
     }
 }
 
-RE::BGSEquipSlot* GetLeftHandSlot() {
+inline RE::BGSEquipSlot* GetLeftHandSlot() {
     using func_t = decltype(GetLeftHandSlot);
     if (REL::Module::IsAE()) {
         REL::Relocation<func_t> func{REL::ID(23607)};
