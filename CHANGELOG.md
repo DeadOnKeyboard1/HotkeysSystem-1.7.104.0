@@ -11,15 +11,21 @@ All notable changes to the **UI-Integrated Hotkeys System (Skyrim 1.7.104.0 Port
 - **Interactive In-Game Mouse Drag & Drop**:
   - Direct manipulation of widgets on screen while the UI menu (F6) is open.
   - Independent positioning for:
-    - Entire HUD Diamond cluster.
+    - Entire HUD Diamond cluster (synchronously moves attached bottom potion widget).
     - Individual weapon and shout diamond widgets.
-    - Text labels (Lefthand, Righthand, Shout, and all 32 Armor slots) separately from their parent icons.
+    - All Equipset widgets (Potions, Gear sets, Cycle sets).
+    - Text labels (Lefthand, Righthand, Shout, all 32 Armor slots, and Equipset names/amounts/hotkeys) separately from their parent icons.
     - Individual armor slot widgets (freely positionable across the screen).
     - Shift + Drag shortcut to move the entire armor stack simultaneously.
-  - Interactive visual gold ring highlights and text bounding box indicators with informative tooltips.
+  - Interactive visual gold/cyan ring highlights and text bounding box indicators with informative tooltips.
   - Automatic persistence to configuration upon mouse release.
+- **Smart Diamond HUD Potion Placement**:
+  - Automatically calculates and positions new potion widgets into the 4th (bottom) slot of the HUD Diamond cluster.
+  - Dedicated "Snap to Diamond HUD (Bottom Slot)" button in both creation and editor dialogs.
+- **Symbol-to-Box Scale Containment**:
+  - Automatic dynamic geometric sizing ensuring symbols fit cleanly within square (~65%) and diamond (~46%) background frames without clipping or overflowing borders.
 - **HUD Scaling Sliders**:
-  - Proportional widget size sliders (0% to 200%) with automatic diamond background adjustment (gSize = round(widgetSize * 2.625)).
+  - Proportional widget size sliders (0% to 200%) with automatic diamond background adjustment (bgSize = round(widgetSize * 2.625)).
   - Independent font size sliders (0% to 200%) for all equipment sections.
 - **Comprehensive 13-Language Multilingual Localization**:
   - Native translations added for English, German, French, Spanish, Italian, Russian, Polish, Czech, Chinese (Simplified), Japanese, Korean, Thai, and Vietnamese.
@@ -29,4 +35,7 @@ All notable changes to the **UI-Integrated Hotkeys System (Skyrim 1.7.104.0 Port
 
 ### Fixed
 - Resolved text label overlap between Left Hand and Right Hand when wielding items with long names.
-- Resolved armor slot stacking collision by establishing strict two-tiered priority: base armor slots (Feet, Hands, Chest, Helmet) remain clustered, and accessory/modded slots stack upwards with auto multi-column wrap.
+- Resolved armor slot stacking collision: Single-column upward stacking anchored at Boots (Slot 37) prevents modded armor slots from jumping into the center of the screen.
+- Resolved icon overflow in sloped diamond boxes and undersized icons in classic square boxes.
+- Fixed Create Equipset modal window clipping so confirmation (OK/Cancel) buttons are always visible without scrolling.
+- Fixed Potion name resolution so custom selected potions display their actual item name rather than set ID.

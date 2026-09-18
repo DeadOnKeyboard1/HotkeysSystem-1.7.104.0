@@ -23,9 +23,11 @@ This repository provides an updated, feature-enhanced port compatible with:
   - Native Address Library integration for AE 1.7.104.0.
 - **Interactive Mouse Drag & Drop**:
   - Open the in-game UI menu (**F6**) to position any widget directly on screen with the mouse cursor.
-  - **HUD Diamond Cluster**: Click the center to move all three weapon/shout diamonds together.
+  - **HUD Diamond Cluster**: Click the center to move all three weapon/shout diamonds together, along with any attached potion widget in the bottom slot.
   - **Individual Diamonds**: Click any individual weapon or shout diamond to move it independently.
-  - **Independent Text Label Positioning**: Click and drag text labels (Lefthand, Righthand, Shout, and Armor slots) freely and separately from the icon widgets.
+  - **Equipset & Potion Widgets**: Click and drag any equipset widget (Potions, Gear sets, Cycle sets) freely across the screen.
+  - **Independent Text Label Positioning**: Click and drag text labels (Lefthand, Righthand, Shout, Armor slots, and Equipset names/amounts/hotkeys) freely and separately from the icon widgets.
+  - **Smart Potion Placement & Snap**: New potion widgets automatically position into the 4th (bottom) slot of the HUD Diamond cluster. A 1-click "Snap to Diamond HUD (Bottom Slot)" button is available in the potion editor to instantly align it.
   - **Armor Slot Widgets**: Move individual armor slots freely on screen, or hold **Shift** while dragging to move the entire armor stack.
   - **Real-Time Visual Indicators**: Gold highlighting rings and text bounding boxes provide clear feedback while hovering and dragging.
   - Automatic persistent coordinate saving to configuration files upon mouse release.
