@@ -194,10 +194,13 @@ namespace Draw {
         auto config = ConfigHandler::GetSingleton();
         if (!config) return false;
 
+        auto ts = Translator::GetSingleton();
         std::vector<std::string> icon_name, icon_key;
         for (auto& [key, widget] : config->widgetMap) {
             icon_key.push_back(key);
-            icon_name.push_back(widget.name);
+            std::string disp = ts ? ts->Translate(key) : widget.name;
+            if (disp == key) disp = widget.name;
+            icon_name.push_back(disp);
         }
 
         if (icon_name.size() == 0) {
@@ -207,12 +210,19 @@ namespace Draw {
 
         auto beforeValue = *_icon_type;
 
-        auto name = config->widgetMap[*_icon_type].name;
-        if (name == "") name = *_icon_type;
-        if (ImGui::BeginCombo(_label.c_str(), name.c_str())) {
-            for (int i = 0; i < icon_key.size(); i++) {
+        std::string curName = "";
+        if (config->widgetMap.find(*_icon_type) != config->widgetMap.end()) {
+            curName = ts ? ts->Translate(*_icon_type) : config->widgetMap[*_icon_type].name;
+            if (curName == *_icon_type) curName = config->widgetMap[*_icon_type].name;
+        } else {
+            curName = *_icon_type;
+        }
+        if (curName == "") curName = *_icon_type;
+
+        if (ImGui::BeginCombo(_label.c_str(), curName.c_str())) {
+            for (size_t i = 0; i < icon_key.size(); i++) {
                 bool is_selected = (*_icon_type == icon_key[i]);
-                ImGui::PushID(i);
+                ImGui::PushID(static_cast<int>(i));
                 if (ImGui::Selectable(icon_name[i].c_str(), is_selected)) {
                     *_icon_type = icon_key[i];
                 }
@@ -225,6 +235,88 @@ namespace Draw {
         }
 
         return beforeValue != *_icon_type;
+    }
+
+    bool ComboBackground(std::string* _bg_type, const std::string& _label) {
+        auto config = ConfigHandler::GetSingleton();
+        if (!config) return false;
+
+        auto ts = Translator::GetSingleton();
+
+        static const std::vector<std::string> bgOrder = {
+            "_NONE",
+            "_BACKGROUND4",
+            "_BACKGROUND",
+            "_BACKGROUND2",
+            "_BACKGROUND3",
+            "_BG_NORDIC_DIAMOND",
+            "_BG_NORDIC_SQUARE",
+            "_BG_CELTIC_DIAMOND",
+            "_BG_CELTIC_SQUARE",
+            "_BG_MINIMAL_DIAMOND",
+            "_BG_MINIMAL_SQUARE",
+            "_BG_COMPASS",
+            "_BG_ARCANE_DIAMOND",
+            "_BG_ARCANE_CIRCLE",
+            "_BG_GOTHIC_DIAMOND",
+            "_BG_GOTHIC_SQUARE",
+            "_BG_DRAGON"
+        };
+
+        std::vector<std::string> keys;
+        std::vector<std::string> names;
+
+        for (const auto& k : bgOrder) {
+            if (config->widgetMap.find(k) != config->widgetMap.end()) {
+                keys.push_back(k);
+                std::string disp = ts ? ts->Translate(k) : config->widgetMap[k].name;
+                if (disp == k) disp = config->widgetMap[k].name;
+                names.push_back(disp);
+            }
+        }
+
+        for (auto& [k, widget] : config->widgetMap) {
+            if (std::find(bgOrder.begin(), bgOrder.end(), k) == bgOrder.end()) {
+                if (k.rfind("_BG_", 0) == 0 || k.rfind("_BACKGROUND", 0) == 0) {
+                    keys.push_back(k);
+                    std::string disp = ts ? ts->Translate(k) : widget.name;
+                    if (disp == k) disp = widget.name;
+                    names.push_back(disp);
+                }
+            }
+        }
+
+        if (names.empty()) {
+            return ComboIcon(_bg_type, _label);
+        }
+
+        auto beforeValue = *_bg_type;
+
+        std::string curName = "";
+        if (config->widgetMap.find(*_bg_type) != config->widgetMap.end()) {
+            curName = ts ? ts->Translate(*_bg_type) : config->widgetMap[*_bg_type].name;
+            if (curName == *_bg_type) curName = config->widgetMap[*_bg_type].name;
+        } else {
+            curName = *_bg_type;
+        }
+        if (curName == "") curName = *_bg_type;
+
+        if (ImGui::BeginCombo(_label.c_str(), curName.c_str())) {
+            for (size_t i = 0; i < keys.size(); i++) {
+                bool is_selected = (*_bg_type == keys[i]);
+                ImGui::PushID(static_cast<int>(i));
+                if (ImGui::Selectable(names[i].c_str(), is_selected)) {
+                    *_bg_type = keys[i];
+                }
+                if (is_selected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+                ImGui::PopID();
+            }
+            ImGui::EndCombo();
+        }
+
+        return beforeValue != *_bg_type;
     }
 
     void PopupConflict(const std::string& _title, const std::string& _name, std::string* _conflictName) {

@@ -35,6 +35,16 @@ This repository provides an updated, feature-enhanced port compatible with:
 - **Full Multilingual Localization (13 Languages)**:
   - Complete translations for all new options, HUD settings, and slot descriptions (Slots 30–61):
     English, German, French, Spanish, Italian, Russian, Polish, Czech, Chinese (Simplified), Japanese, Korean, Thai, and Vietnamese.
+- **Rich Collection of Background & Frame Themes**:
+  - 12 new high-resolution DXT5 themes in both Diamond (Weapons/Shout) and Square/Round (Armor/Equipset) styles:
+    - **Nordic Runes**: Stone & iron frame with Elder Futhark rune engravings.
+    - **Celtic Knotwork**: Interlaced Celtic knots and silver filigree.
+    - **Minimalist Modern**: Crisp, razor-thin double outline with corner brackets.
+    - **Compass / Astrolabe**: Round astronomical celestial dial with cardinal pointers.
+    - **Arcane Magic**: Glowing runic summoning circles and mystical glyphs.
+    - **Gothic Dark Iron**: Heavy riveted forged dark steel with sharp spiked corners.
+    - **Skyrim Imperial Dragon**: Stylized dragon wing crest accents.
+  - **1-Click Theme Preset Selector**: Choose a preset style from the in-game menu to instantly theme all widgets, or customize each individually.
 - **Resolution Scaling**:
   - Universal virtual stage scaling ($S = \text{ScreenHeight} / 720.0f$) providing pixel-perfect alignment across 1080p, 1440p, 4K, 16:10, and 21:9 Ultrawide displays.
 

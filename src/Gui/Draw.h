@@ -43,6 +43,7 @@ namespace Draw {
                      const std::string& _format = "%.3f", int flags = 0);
     bool Combo(const std::vector<std::string>& _items, uint32_t* _current, const std::string& _label);
     bool ComboIcon(std::string* _icon_type, const std::string& _label);
+    bool ComboBackground(std::string* _bg_type, const std::string& _label);
     void PopupConflict(const std::string& _title, const std::string& _name, std::string* _conflictName);
 
     void BeginGroupPanel(const char* name, const ImVec2& size, const ImVec2& _padding);

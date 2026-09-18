@@ -800,7 +800,7 @@ void GuiMenu::DrawConfig() {
     auto Reload = [&shouldReload]() { shouldReload = true; };
 
     auto DrawWidgetSection = [ts, Reload](ConfigHandler::WidgetBase* _widget) {
-        if (Draw::ComboIcon(&_widget->bgType, C_TRANSLATE("_BACKGROUND_TYPE"))) {
+        if (Draw::ComboBackground(&_widget->bgType, C_TRANSLATE("_BACKGROUND_TYPE"))) {
             Reload();
         }
         if (Draw::SliderInt(C_TRANSLATE("_BACKGROUND_SIZE"), &_widget->bgSize, 0, 200, "%d%%",
@@ -860,6 +860,69 @@ void GuiMenu::DrawConfig() {
                     Draw::SliderFloat(C_TRANSLATE("_TAB_CONFIG_WIDGET_GENERAL_ANIMDELAY"),
                                       &config->Widget.General.animDelay, 1.0f, 5.0f, msg.c_str(),
                                       ImGuiSliderFlags_AlwaysClamp);
+
+                    // Theme Preset Selector
+                    std::vector<std::string> themePresets = {
+                        TRANSLATE("_THEME_PRESET_SELECT"),
+                        TRANSLATE("_THEME_PRESET_NORDIC"),
+                        TRANSLATE("_THEME_PRESET_CELTIC"),
+                        TRANSLATE("_THEME_PRESET_MINIMAL"),
+                        TRANSLATE("_THEME_PRESET_COMPASS"),
+                        TRANSLATE("_THEME_PRESET_ARCANE"),
+                        TRANSLATE("_THEME_PRESET_GOTHIC"),
+                        TRANSLATE("_THEME_PRESET_DRAGON"),
+                        TRANSLATE("_THEME_PRESET_CLASSIC_DIAMOND"),
+                        TRANSLATE("_THEME_PRESET_CLASSIC_SQUARE"),
+                        TRANSLATE("_THEME_PRESET_NONE")
+                    };
+                    static uint32_t currentThemePreset = 0;
+                    if (Draw::Combo(themePresets, &currentThemePreset, C_TRANSLATE("_THEME_PRESET_LABEL"))) {
+                        auto ApplyTheme = [&](const std::string& diamondBg, const std::string& squareBg, uint32_t armorAlpha = 100) {
+                            config->Widget.Equipment.Weapon.bgType = diamondBg;
+                            config->Widget.Equipment.Shout.bgType = diamondBg;
+                            config->Widget.Equipment.Armor.bgType = squareBg;
+                            config->Widget.Equipment.Armor.bgAlpha = armorAlpha;
+                            config->Widget.Equipset.Normal.bgType = diamondBg;
+                            config->Widget.Equipset.Potion.bgType = diamondBg;
+                            config->Widget.Equipset.Cycle.bgType = diamondBg;
+                            Reload();
+                        };
+
+                        switch (currentThemePreset) {
+                            case 1:
+                                ApplyTheme("_BG_NORDIC_DIAMOND", "_BG_NORDIC_SQUARE");
+                                break;
+                            case 2:
+                                ApplyTheme("_BG_CELTIC_DIAMOND", "_BG_CELTIC_SQUARE");
+                                break;
+                            case 3:
+                                ApplyTheme("_BG_MINIMAL_DIAMOND", "_BG_MINIMAL_SQUARE");
+                                break;
+                            case 4:
+                                ApplyTheme("_BG_COMPASS", "_BG_COMPASS");
+                                break;
+                            case 5:
+                                ApplyTheme("_BG_ARCANE_DIAMOND", "_BG_ARCANE_CIRCLE");
+                                break;
+                            case 6:
+                                ApplyTheme("_BG_GOTHIC_DIAMOND", "_BG_GOTHIC_SQUARE");
+                                break;
+                            case 7:
+                                ApplyTheme("_BG_DRAGON", "_BG_NORDIC_SQUARE");
+                                break;
+                            case 8:
+                                ApplyTheme("_BACKGROUND4", "_BACKGROUND4");
+                                break;
+                            case 9:
+                                ApplyTheme("_BACKGROUND2", "_BACKGROUND2");
+                                break;
+                            case 10:
+                                ApplyTheme("_NONE", "_NONE", 0);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
 
                     auto hudLabel = TRANSLATE("_WIDGET_HUD_DIAMOND");
                     if (hudLabel == "_WIDGET_HUD_DIAMOND") hudLabel = "HUD Diamond (Bottom-Right)";
