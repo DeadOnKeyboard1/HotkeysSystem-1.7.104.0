@@ -97,7 +97,7 @@ This repository and its compiled binary distributions are licensed under the **G
 While the original upstream mod was created under the permissive MIT License, this port builds with and statically links **[CommonLibSSE-NG](https://github.com/alandtse/CommonLibSSE-NG)**, which transitioned to **GPL-3.0-or-later** (with Modding and Linking Exceptions). Because CommonLibSSE-NG is statically compiled into the resulting SKSE plugin binary (`HotkeysSystem.dll`), the compiled plugin and any distribution form a combined work that must be licensed under the GPL-3.0-or-later.
 
 ### Component Breakdown & Attribution
-- **Original HotkeysSystem**: &copy; 2023 [neogulcity](https://github.com/neogulcity) &mdash; Released under the [MIT License](LICENSE-MIT). Original copyright notices and permission terms are preserved.
+- **Original HotkeysSystem**: &copy; 2023 [neogulcity](https://github.com/neogulcity) &mdash; Released under the [MIT License](https://github.com/neogulcity/HotkeysSystem/blob/main/LICENSE). Original copyright notices and permission terms are preserved.
 - **Port & Enhancements (Skyrim 1.7.104.0)**: &copy; 2026 DeadOnKeyboard / Contributors &mdash; Licensed under the [GNU General Public License v3.0 or later](LICENSE).
 - **CommonLibSSE-NG**: &copy; CommonLibSSE-NG Contributors &mdash; Licensed under [GPL-3.0-or-later](licenses/CommonLibSSE-NG/COPYING.txt) with [Modding and Linking Exceptions](licenses/CommonLibSSE-NG/EXCEPTIONS.md).
 - **Dear ImGui**: &copy; 2014-2026 Omar Cornut &mdash; Licensed under the [MIT License](licenses/DearImGui/LICENSE.txt).
