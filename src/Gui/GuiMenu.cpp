@@ -483,6 +483,14 @@ void GuiMenu::DrawEquipment() {
 
     auto DrawWidgetIconSection = [ts, Reload, equipment, config](WidgetIcon* _widget, int* _size = nullptr, int* _bgSize = nullptr) {
         if (ImGui::Checkbox(C_TRANSLATE("_WIDGET_ENABLE"), &_widget->enable)) {
+            for (int i = 0; i < static_cast<int>(equipment->armor.size()); i++) {
+                if (&equipment->armor[i].widgetIcon == _widget) {
+                    equipment->armor[i].widgetName.enable = _widget->enable;
+                    break;
+                }
+            }
+            equipment->AutoArrangeArmorSlots();
+            equipment->Save();
             Reload();
         }
         if (_size) {
@@ -493,10 +501,8 @@ void GuiMenu::DrawEquipment() {
                     *_bgSize = static_cast<int>(std::round((float)(*_size) * ratio));
                 }
                 if (_size == &config->Widget.Equipment.Armor.widgetSize) {
-                    if (config->Widget.General.hudArmorAutoStack) {
-                        equipment->AutoArrangeArmorSlots();
-                        equipment->Save();
-                    }
+                    equipment->AutoArrangeArmorSlots();
+                    equipment->Save();
                 } else if (_size == &config->Widget.Equipment.Weapon.widgetSize || _size == &config->Widget.Equipment.Shout.widgetSize) {
                     equipment->AutoArrangeDiamondCluster();
                     equipment->Save();
@@ -518,6 +524,8 @@ void GuiMenu::DrawEquipment() {
                                                 TRANSLATE("_ALIGN_CENTER")};
 
         if (ImGui::Checkbox(C_TRANSLATE("_WIDGET_ENABLE"), &_widget->enable)) {
+            equipment->AutoArrangeArmorSlots();
+            equipment->Save();
             Reload();
         }
         if (_fontSize) {
@@ -570,15 +578,15 @@ void GuiMenu::DrawEquipment() {
     auto emptyLabel = TRANSLATE("_WIDGET_SHOW_EMPTY");
     if (emptyLabel == "_WIDGET_SHOW_EMPTY") emptyLabel = "Show Empty Slots (Unequipped)";
     if (ImGui::Checkbox(emptyLabel.c_str(), &config->Widget.General.showEmptySlots)) {
+        equipment->AutoArrangeArmorSlots();
+        equipment->Save();
         Reload();
     }
 
     auto autoScaleLabel = TRANSLATE("_WIDGET_AUTO_SCALE");
     if (autoScaleLabel == "_WIDGET_AUTO_SCALE") autoScaleLabel = "Auto-Scale with Screen Resolution";
     if (ImGui::Checkbox(autoScaleLabel.c_str(), &config->Widget.General.autoResolutionScale)) {
-        if (config->Widget.General.hudArmorAutoStack) {
-            equipment->AutoArrangeArmorSlots();
-        }
+        equipment->AutoArrangeArmorSlots();
         equipment->AutoArrangeDiamondCluster();
         equipment->Save();
         Reload();
@@ -610,10 +618,8 @@ void GuiMenu::DrawEquipment() {
         auto autoStackLabel = TRANSLATE("_WIDGET_HUD_ARMOR_AUTO_STACK");
         if (autoStackLabel == "_WIDGET_HUD_ARMOR_AUTO_STACK") autoStackLabel = "Auto-Arrange Armor Stack (Multi-Column)";
         if (ImGui::Checkbox(autoStackLabel.c_str(), &config->Widget.General.hudArmorAutoStack)) {
-            if (config->Widget.General.hudArmorAutoStack) {
-                equipment->AutoArrangeArmorSlots();
-                equipment->Save();
-            }
+            equipment->AutoArrangeArmorSlots();
+            equipment->Save();
             Reload();
         }
         ImGui::SameLine();
@@ -671,10 +677,8 @@ void GuiMenu::DrawEquipment() {
                                 DrawWidgetIconSection(&equipment->armor[i].widgetIcon, &config->Widget.Equipment.Armor.widgetSize, &config->Widget.Equipment.Armor.bgSize);
                                 if (equipment->armor[i].widgetIcon.enable != oldIconEnable) {
                                     equipment->armor[i].widgetName.enable = equipment->armor[i].widgetIcon.enable;
-                                    if (config->Widget.General.hudArmorAutoStack) {
-                                        equipment->AutoArrangeArmorSlots();
-                                        equipment->Save();
-                                    }
+                                    equipment->AutoArrangeArmorSlots();
+                                    equipment->Save();
                                     Reload();
                                 }
                                 ImGui::TreePop();

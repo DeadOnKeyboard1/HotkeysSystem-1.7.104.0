@@ -876,10 +876,7 @@ void EquipmentBase::CreateWidgetText1() {
 }
 
 void EquipmentManager::CreateAllArmorWidget() {
-    auto config = ConfigHandler::GetSingleton();
-    if (config && config->Widget.General.hudArmorAutoStack) {
-        AutoArrangeArmorSlots();
-    }
+    AutoArrangeArmorSlots();
     for (auto& elem : this->armor) {
         elem.CreateWidgetBackground();
         elem.CreateWidgetIcon();
@@ -976,15 +973,23 @@ void EquipmentManager::AutoArrangeArmorSlots() {
 
     auto player = RE::PlayerCharacter::GetSingleton();
     std::vector<int> activeIndices;
+    std::vector<int> inactiveIndices;
     for (int i = 0; i < static_cast<int>(this->armor.size()); i++) {
-        if (!this->armor[i].widgetIcon.enable) continue;
-        if (!config->Widget.General.showEmptySlots && player && !IsArmorSlotEquipped(this->armor[i].slotid)) {
-            continue;
+        if (this->armor[i].widgetIcon.enable) {
+            if (!config->Widget.General.showEmptySlots && player && !IsArmorSlotEquipped(this->armor[i].slotid)) {
+                inactiveIndices.push_back(i);
+            } else {
+                activeIndices.push_back(i);
+            }
+        } else {
+            inactiveIndices.push_back(i);
         }
-        activeIndices.push_back(i);
     }
 
     std::sort(activeIndices.begin(), activeIndices.end(), [&](int a, int b) {
+        return GetSlotPriority(a) < GetSlotPriority(b);
+    });
+    std::sort(inactiveIndices.begin(), inactiveIndices.end(), [&](int a, int b) {
         return GetSlotPriority(a) < GetSlotPriority(b);
     });
 
@@ -1016,6 +1021,23 @@ void EquipmentManager::AutoArrangeArmorSlots() {
     for (int idx : activeIndices) {
         if (currentY < minY) {
             // Screen edge reached going upwards: start 2nd column next to it!
+            currentX += columnWidth;
+            currentY = baseY;
+        }
+
+        this->armor[idx].widgetIcon.offsetX = currentX;
+        this->armor[idx].widgetIcon.offsetY = currentY;
+
+        this->armor[idx].widgetName.align = WidgetText::ALIGN_TYPE::LEFT;
+        this->armor[idx].widgetName.offsetX = nameOffsetX;
+        this->armor[idx].widgetName.offsetY = 0;
+
+        currentY -= stepY;
+    }
+
+    // Also pre-position all inactive slots continuing upwards in the stack, so whenever any slot is enabled, it already starts above the helmet!
+    for (int idx : inactiveIndices) {
+        if (currentY < minY) {
             currentX += columnWidth;
             currentY = baseY;
         }
@@ -1241,6 +1263,18 @@ void EquipmentManager::Load() {
             (this->armor[2].widgetIcon.offsetY == 405 && this->armor[3].widgetIcon.offsetY == 450)) {
             ResetToDefaults();
             Save();
+        } else {
+            bool hasZeroArmorPos = false;
+            for (int i = 0; i < 32; i++) {
+                if (this->armor[i].widgetIcon.offsetY == 0) {
+                    hasZeroArmorPos = true;
+                    break;
+                }
+            }
+            if (hasZeroArmorPos) {
+                AutoArrangeArmorSlots();
+                Save();
+            }
         }
 
         logger::info("Equipment data loaded.");
