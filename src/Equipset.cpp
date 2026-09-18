@@ -47,7 +47,8 @@ static void EquipItem(RE::TESForm* _form, RE::BGSEquipSlot* _slot, bool _sound, 
                 }
             }
         } else if (_form->Is(RE::FormType::Weapon, RE::FormType::Armor)) {
-            if (Actor::HasItem(player, _form) || _form->formID == GetDummyDagger()->formID) {
+            auto dummy = GetDummyDagger();
+            if (Actor::HasItem(player, _form) || (dummy && _form->formID == dummy->formID)) {
                 auto object = _form->As<RE::TESBoundObject>();
                 if (object) {
                     auto armor = _form->As<RE::TESObjectARMO>();
@@ -84,6 +85,7 @@ static void UnequipItem(RE::TESForm* _form, RE::BGSEquipSlot* _slot, bool _sound
 }
 
 static bool isTwoHandedWeapon(RE::TESObjectWEAP* obj) {
+    if (!obj) return false;
     if (obj->IsTwoHandedAxe() || obj->IsTwoHandedSword() || obj->IsBow() || obj->IsCrossbow()) {
         return true;
     }
@@ -249,13 +251,13 @@ void NormalSet::Equip() {
         }
     }
     if (equippedLeft != nullptr && equippedLeft->Is(RE::FormType::Weapon) && isTwoHandedWeapon(static_cast<RE::TESObjectWEAP*>(equippedLeft)) 
-        && equippedLeft->GetName() != equipset->lefthand.name) {
+        && (!equippedLeft->GetName() || equippedLeft->GetName() != equipset->lefthand.name)) {
         EquipItem(DummyDagger, GetLeftHandSlot(), false, nullptr, false, true);
         UnequipItem(DummyDagger, GetLeftHandSlot(), false, nullptr, false, true);
     }
     // notice: need equip left hand weapon, otherwise left hand weapon lost charge
     equippedLeft = player->GetEquippedObject(true);
-    if(equippedLeft != nullptr && equippedLeft->GetName() == equipset->lefthand.name){
+    if (equippedLeft != nullptr && equippedLeft->GetName() && equippedLeft->GetName() == equipset->lefthand.name) {
         equipLeft = false;
     }
     if (equipLeft && equipset->lefthand.form &&
@@ -268,7 +270,7 @@ void NormalSet::Equip() {
     }
     
     equippedRight = player->GetEquippedObject(false);
-    if(equippedRight != nullptr && equippedRight->GetName() == equipset->righthand.name){
+    if (equippedRight != nullptr && equippedRight->GetName() && equippedRight->GetName() == equipset->righthand.name) {
         equipRight = false;
     }
     if (equipRight && equipset->righthand.form &&
@@ -386,6 +388,7 @@ void CycleSet::Equip() {
     if (!manager) return;
 
     auto cycleset = this;
+    if (cycleset->items.empty()) return;
 
     bool doNext = true;
     if (cycleset->cyclePersist && isCycleInit) {
@@ -500,7 +503,7 @@ void CycleSet::Equip() {
         this->CreateWidgetIcon();
     }
 
-    if (cycleset->widgetName.enable) {
+    if (cycleset->widgetName.enable && cycleset->cycleIndex < cycleset->items.size()) {
         widgetHandler->SetText(cycleset->widgetID.text1, cycleset->items[cycleset->cycleIndex]);
     }
 }
@@ -733,6 +736,16 @@ void Equipset::CreateWidgetText1() {
     auto config = ConfigHandler::GetSingleton();
     if (!config) return;
 
+    auto getFont = [](ConfigHandler* cfg) -> std::string {
+        if (cfg && !cfg->fontVec.empty()) {
+            if (cfg->Widget.General.font < cfg->fontVec.size()) {
+                return cfg->fontVec[cfg->Widget.General.font];
+            }
+            return cfg->fontVec[0];
+        }
+        return "$EverywhereFont";
+    };
+
     float resScale = config->Widget.General.autoResolutionScale ? Utility::GetResolutionScale() : 1.0f;
 
     if (this->type == Equipset::TYPE::NORMAL) {
@@ -742,7 +755,7 @@ void Equipset::CreateWidgetText1() {
         if (equipset->widgetIcon.enable && equipset->widgetName.enable) {
             auto id = equipset->widgetID.text1;
             auto text = equipset->name;
-            auto font = config->fontVec[config->Widget.General.font];
+            auto font = getFont(config);
             auto offsetX = equipset->widgetName.offsetX + equipset->widgetIcon.offsetX;
             auto offsetY = equipset->widgetName.offsetY + equipset->widgetIcon.offsetY;
             auto align = static_cast<uint32_t>(equipset->widgetName.align);
@@ -758,7 +771,7 @@ void Equipset::CreateWidgetText1() {
         if (equipset->widgetIcon.enable && equipset->widgetName.enable) {
             auto id = equipset->widgetID.text1;
             auto text = equipset->GetPotionName();
-            auto font = config->fontVec[config->Widget.General.font];
+            auto font = getFont(config);
             auto offsetX = equipset->widgetName.offsetX + equipset->widgetIcon.offsetX;
             auto offsetY = equipset->widgetName.offsetY + equipset->widgetIcon.offsetY;
             auto align = static_cast<uint32_t>(equipset->widgetName.align);
@@ -775,7 +788,7 @@ void Equipset::CreateWidgetText1() {
             equipset->cycleIndex < equipset->items.size()) {
             auto id = equipset->widgetID.text1;
             auto text = equipset->items[equipset->cycleIndex];
-            auto font = config->fontVec[config->Widget.General.font];
+            auto font = getFont(config);
             auto offsetX = equipset->widgetName.offsetX + equipset->widgetIcon.offsetX;
             auto offsetY = equipset->widgetName.offsetY + equipset->widgetIcon.offsetY;
             auto align = static_cast<uint32_t>(equipset->widgetName.align);
@@ -794,6 +807,16 @@ void Equipset::CreateWidgetText2() {
     auto config = ConfigHandler::GetSingleton();
     if (!config) return;
 
+    auto getFont = [](ConfigHandler* cfg) -> std::string {
+        if (cfg && !cfg->fontVec.empty()) {
+            if (cfg->Widget.General.font < cfg->fontVec.size()) {
+                return cfg->fontVec[cfg->Widget.General.font];
+            }
+            return cfg->fontVec[0];
+        }
+        return "$EverywhereFont";
+    };
+
     float resScale = config->Widget.General.autoResolutionScale ? Utility::GetResolutionScale() : 1.0f;
 
     if (this->type == Equipset::TYPE::NORMAL) {
@@ -802,8 +825,9 @@ void Equipset::CreateWidgetText2() {
 
         if (equipset->widgetIcon.enable && equipset->widgetHotkey.enable) {
             auto id = equipset->widgetID.text2;
-            auto text = ImGui::GetKeyName(static_cast<ImGuiKey>(equipset->hotkey));
-            auto font = config->fontVec[config->Widget.General.font];
+            const char* kn = ImGui::GetKeyName(static_cast<ImGuiKey>(equipset->hotkey));
+            std::string text = kn ? kn : "";
+            auto font = getFont(config);
             auto offsetX = equipset->widgetHotkey.offsetX + equipset->widgetIcon.offsetX;
             auto offsetY = equipset->widgetHotkey.offsetY + equipset->widgetIcon.offsetY;
             auto align = static_cast<uint32_t>(equipset->widgetHotkey.align);
@@ -819,7 +843,7 @@ void Equipset::CreateWidgetText2() {
         if (equipset->widgetIcon.enable && equipset->widgetAmount.enable) {
             auto id = equipset->widgetID.text2;
             auto text = equipset->GetPotionAmount();
-            auto font = config->fontVec[config->Widget.General.font];
+            auto font = getFont(config);
             auto offsetX = equipset->widgetAmount.offsetX + equipset->widgetIcon.offsetX;
             auto offsetY = equipset->widgetAmount.offsetY + equipset->widgetIcon.offsetY;
             auto align = static_cast<uint32_t>(equipset->widgetAmount.align);
@@ -834,8 +858,9 @@ void Equipset::CreateWidgetText2() {
 
         if (equipset->widgetIcon.enable && equipset->widgetHotkey.enable) {
             auto id = equipset->widgetID.text2;
-            auto text = ImGui::GetKeyName(static_cast<ImGuiKey>(equipset->hotkey));
-            auto font = config->fontVec[config->Widget.General.font];
+            const char* kn = ImGui::GetKeyName(static_cast<ImGuiKey>(equipset->hotkey));
+            std::string text = kn ? kn : "";
+            auto font = getFont(config);
             auto offsetX = equipset->widgetHotkey.offsetX + equipset->widgetIcon.offsetX;
             auto offsetY = equipset->widgetHotkey.offsetY + equipset->widgetIcon.offsetY;
             auto align = static_cast<uint32_t>(equipset->widgetHotkey.align);

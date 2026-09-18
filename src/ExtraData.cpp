@@ -41,11 +41,17 @@ namespace Extra {
         if (_obj->formType == RE::FormType::Weapon) {
             auto weapon = _obj->As<RE::TESObjectWEAP>();
             auto formEnch = weapon && weapon->formEnchanting ? weapon->formEnchanting : nullptr;
-            result = formEnch ? formEnch->GetName() : result;
+            if (formEnch) {
+                const char* n = formEnch->GetName();
+                if (n) result = n;
+            }
         } else if (_obj->formType == RE::FormType::Armor) {
             auto armor = _obj->As<RE::TESObjectARMO>();
             auto formEnch = armor && armor->formEnchanting ? armor->formEnchanting : nullptr;
-            result = formEnch ? formEnch->GetName() : result;
+            if (formEnch) {
+                const char* n = formEnch->GetName();
+                if (n) result = n;
+            }
         }
 
         if (!_xList) {
@@ -58,7 +64,10 @@ namespace Extra {
 
         auto xEnch = _xList->GetByType<RE::ExtraEnchantment>();
         auto enchantment = xEnch ? xEnch->enchantment : nullptr;
-        result = enchantment ? enchantment->GetName() : result;
+        if (enchantment) {
+            const char* n = enchantment->GetName();
+            if (n) result = n;
+        }
 
         return result;
     }
@@ -110,15 +119,17 @@ namespace Extra {
         auto inv = player->GetInventory();
         for (const auto& [item, data] : inv) {
             const auto& [numItem, entry] = data;
-            if (!(numItem > 0 && item->Is(RE::FormType::Weapon, RE::FormType::Armor))) continue;
+            if (!item || numItem <= 0 || !item->Is(RE::FormType::Weapon, RE::FormType::Armor)) continue;
 
-            if (item->GetName() != _name) continue;
+            const char* itemName = item->GetName();
+            if (!itemName || itemName != _name) continue;
 
-            auto extraLists = entry->extraLists;
-            if (!extraLists) return nullptr;
+            auto extraLists = entry ? entry->extraLists : nullptr;
+            if (!extraLists) continue;
 
             for (auto& xList : *extraLists) {
-                if (Extra::GetEnchNum(item, xList) == _enchNum &&
+                if (xList &&
+                    Extra::GetEnchNum(item, xList) == _enchNum &&
                     Extra::GetEnchName(item, xList) == _enchName &&
                     Extra::GetTempValue(xList) == _tempVal) {
                     return xList;

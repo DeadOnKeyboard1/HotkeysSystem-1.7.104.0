@@ -50,6 +50,7 @@ namespace Scaleform {
     }
 
     void WidgetMenu::SetMenuVisible(bool _visible) {
+        if (!_view) return;
         const auto prev = _view->GetVisible();
         if (prev != _visible) {
             _view->SetVisible(_visible);

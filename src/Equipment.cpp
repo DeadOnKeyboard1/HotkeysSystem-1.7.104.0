@@ -52,20 +52,26 @@ bool IsArmorSlotEquipped(const std::string& _slot) {
     auto player = RE::PlayerCharacter::GetSingleton();
     if (!player) return false;
 
-    int slot = std::stoi(_slot.substr(5, std::string::npos)) - 30;
+    int slot = 0;
+    try {
+        slot = std::stoi(_slot.substr(5, std::string::npos)) - 30;
+    } catch (...) {
+        return false;
+    }
+
     auto inv = player->GetInventory();
     for (const auto& [item, data] : inv) {
         const auto& [numItem, entry] = data;
-        if (numItem > 0 && item->Is(RE::FormType::Armor)) {
+        if (item && numItem > 0 && item->Is(RE::FormType::Armor)) {
             auto armor = item->As<RE::TESObjectARMO>();
             if (!armor) continue;
 
-            auto extraLists = entry->extraLists;
+            auto extraLists = entry ? entry->extraLists : nullptr;
             if (!extraLists) continue;
 
             bool isWorn = false;
             for (auto& _xList : *extraLists) {
-                if (_xList->HasType(RE::ExtraDataType::kWorn)) {
+                if (_xList && _xList->HasType(RE::ExtraDataType::kWorn)) {
                     isWorn = true;
                     break;
                 }
@@ -100,22 +106,26 @@ std::string GetArmorWidgetName(const std::string& _slot) {
     auto player = RE::PlayerCharacter::GetSingleton();
     if (!player) return result;
 
-    int slot = std::stoi(_slot.substr(5, std::string::npos)) - 30;
+    int slot = 0;
+    try {
+        slot = std::stoi(_slot.substr(5, std::string::npos)) - 30;
+    } catch (...) {
+        return result;
+    }
 
     auto inv = player->GetInventory();
     for (const auto& [item, data] : inv) {
         const auto& [numItem, entry] = data;
-        if (numItem > 0 && item->Is(RE::FormType::Armor)) {
+        if (item && numItem > 0 && item->Is(RE::FormType::Armor)) {
             auto armor = item->As<RE::TESObjectARMO>();
             if (!armor) continue;
 
-            auto extraLists = entry->extraLists;
+            auto extraLists = entry ? entry->extraLists : nullptr;
             if (!extraLists) continue;
 
             bool doNext = false;
             for (auto& _xList : *extraLists) {
-                auto isWorn = _xList->HasType(RE::ExtraDataType::kWorn);
-                if (isWorn) {
+                if (_xList && _xList->HasType(RE::ExtraDataType::kWorn)) {
                     doNext = true;
                     break;
                 }
@@ -126,7 +136,10 @@ std::string GetArmorWidgetName(const std::string& _slot) {
             auto armor_slot = static_cast<uint32_t>(armor->GetSlotMask());
             int flag = 1;
             if (armor_slot & (flag << slot)) {
-                result = item->GetName();
+                const char* itemName = item->GetName();
+                if (itemName) {
+                    result = itemName;
+                }
             }
         }
     }
@@ -760,6 +773,16 @@ void EquipmentBase::CreateWidgetText1() {
     auto widgetHandler = WidgetHandler::GetSingleton();
     if (!widgetHandler) return;
 
+    auto getFont = [](ConfigHandler* cfg) -> std::string {
+        if (cfg && !cfg->fontVec.empty()) {
+            if (cfg->Widget.General.font < cfg->fontVec.size()) {
+                return cfg->fontVec[cfg->Widget.General.font];
+            }
+            return cfg->fontVec[0];
+        }
+        return "$EverywhereFont";
+    };
+
     float resScale = config->Widget.General.autoResolutionScale ? Utility::GetResolutionScale() : 1.0f;
     auto player = RE::PlayerCharacter::GetSingleton();
 
@@ -775,7 +798,7 @@ void EquipmentBase::CreateWidgetText1() {
         if (armor->widgetIcon.enable && armor->widgetName.enable) {
             auto id = armor->widgetID.text1;
             auto text = GetArmorWidgetName(armor->slotid);
-            auto font = config->fontVec[config->Widget.General.font];
+            auto font = getFont(config);
             auto offsetX = armor->widgetName.offsetX + armor->widgetIcon.offsetX;
             auto offsetY = armor->widgetName.offsetY + armor->widgetIcon.offsetY;
             auto align = static_cast<uint32_t>(armor->widgetName.align);
@@ -797,7 +820,7 @@ void EquipmentBase::CreateWidgetText1() {
         if (weapon->widgetIcon.enable && weapon->widgetName.enable) {
             auto id = weapon->widgetID.text1;
             auto text = GetWeaponWidgetName(weapon->isLeft);
-            auto font = config->fontVec[config->Widget.General.font];
+            auto font = getFont(config);
             auto offsetX = weapon->widgetName.offsetX + weapon->widgetIcon.offsetX;
             auto offsetY = weapon->widgetName.offsetY + weapon->widgetIcon.offsetY;
             auto align = static_cast<uint32_t>(weapon->widgetName.align);
@@ -817,7 +840,7 @@ void EquipmentBase::CreateWidgetText1() {
         if (shout->widgetIcon.enable && shout->widgetName.enable) {
             auto id = shout->widgetID.text1;
             auto text = GetShoutWidgetName();
-            auto font = config->fontVec[config->Widget.General.font];
+            auto font = getFont(config);
             auto offsetX = shout->widgetName.offsetX + shout->widgetIcon.offsetX;
             auto offsetY = shout->widgetName.offsetY + shout->widgetIcon.offsetY;
             auto align = static_cast<uint32_t>(shout->widgetName.align);

@@ -153,6 +153,7 @@ uint32_t InputHandler::GetImGuiKey(const uint32_t& _scanCode, RE::INPUT_DEVICE _
 InputHandler::EventResult InputHandler::ProcessEvent(RE::InputEvent* const* _event,
                                                      RE::BSTEventSource<RE::InputEvent*>* _eventSource) {
     if (!_event || !_eventSource) return RE::BSEventNotifyControl::kContinue;
+    if (!ImGui::GetCurrentContext()) return RE::BSEventNotifyControl::kContinue;
 
     for (auto event = *_event; event; event = event->next) {
         if (event->eventType == RE::INPUT_EVENT_TYPE::kChar) {

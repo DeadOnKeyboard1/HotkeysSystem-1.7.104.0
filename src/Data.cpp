@@ -40,20 +40,25 @@ std::string DataWeapon::Pack() {
 DataWeapon DataWeapon::Unpack(const std::string& _packed) {
     std::vector<std::string> dataVec = Utility::Split(_packed, Utility::delimiter);
 
-    assert(dataVec.size() == 7);
-
     DataWeapon result;
-    result.type = static_cast<Data::DATATYPE>(std::stoi(dataVec[0]));
-    result.name = dataVec[1];
-    result.enchNum = std::stoi(dataVec[2]);
-    result.enchName = dataVec[3];
-    result.tempVal = std::stof(dataVec[4]);
+    if (dataVec.size() < 7) {
+        return result;
+    }
 
-    RE::FormID id = std::stoll(dataVec[5]);
-    auto modname = dataVec[6];
-    auto TESDataHandler = RE::TESDataHandler::GetSingleton();
-    auto form = TESDataHandler ? TESDataHandler->LookupForm(id, modname) : nullptr;
-    result.form = form;
+    try {
+        result.type = static_cast<Data::DATATYPE>(std::stoi(dataVec[0]));
+        result.name = dataVec[1];
+        result.enchNum = std::stoi(dataVec[2]);
+        result.enchName = dataVec[3];
+        result.tempVal = std::stof(dataVec[4]);
+
+        RE::FormID id = std::stoll(dataVec[5]);
+        auto modname = dataVec[6];
+        auto TESDataHandler = RE::TESDataHandler::GetSingleton();
+        auto form = TESDataHandler ? TESDataHandler->LookupForm(id, modname) : nullptr;
+        result.form = form;
+    } catch (...) {
+    }
 
     return result;
 }
@@ -86,17 +91,22 @@ std::string DataShout::Pack() {
 DataShout DataShout::Unpack(const std::string& _packed) {
     std::vector<std::string> dataVec = Utility::Split(_packed, Utility::delimiter);
 
-    assert(dataVec.size() == 4);
-
     DataShout result;
-    result.type = static_cast<Data::DATATYPE>(std::stoi(dataVec[0]));
-    result.name = dataVec[1];
+    if (dataVec.size() < 4) {
+        return result;
+    }
 
-    RE::FormID id = std::stoll(dataVec[2]);
-    auto modname = dataVec[3];
-    auto TESDataHandler = RE::TESDataHandler::GetSingleton();
-    auto form = TESDataHandler ? TESDataHandler->LookupForm(id, modname) : nullptr;
-    result.form = form;
+    try {
+        result.type = static_cast<Data::DATATYPE>(std::stoi(dataVec[0]));
+        result.name = dataVec[1];
+
+        RE::FormID id = std::stoll(dataVec[2]);
+        auto modname = dataVec[3];
+        auto TESDataHandler = RE::TESDataHandler::GetSingleton();
+        auto form = TESDataHandler ? TESDataHandler->LookupForm(id, modname) : nullptr;
+        result.form = form;
+    } catch (...) {
+    }
 
     return result;
 }
@@ -132,20 +142,25 @@ std::string DataArmor::Pack() {
 DataArmor DataArmor::Unpack(const std::string& _packed) {
     std::vector<std::string> dataVec = Utility::Split(_packed, Utility::delimiter);
 
-    assert(dataVec.size() == 7);
-
     DataArmor result;
-    result.type = static_cast<Data::DATATYPE>(std::stoi(dataVec[0]));
-    result.name = dataVec[1];
-    result.enchNum = std::stoi(dataVec[2]);
-    result.enchName = dataVec[3];
-    result.tempVal = std::stof(dataVec[4]);
+    if (dataVec.size() < 7) {
+        return result;
+    }
 
-    RE::FormID id = std::stoll(dataVec[5]);
-    auto modname = dataVec[6];
-    auto TESDataHandler = RE::TESDataHandler::GetSingleton();
-    auto form = TESDataHandler ? TESDataHandler->LookupForm(id, modname) : nullptr;
-    result.form = form;
+    try {
+        result.type = static_cast<Data::DATATYPE>(std::stoi(dataVec[0]));
+        result.name = dataVec[1];
+        result.enchNum = std::stoi(dataVec[2]);
+        result.enchName = dataVec[3];
+        result.tempVal = std::stof(dataVec[4]);
+
+        RE::FormID id = std::stoll(dataVec[5]);
+        auto modname = dataVec[6];
+        auto TESDataHandler = RE::TESDataHandler::GetSingleton();
+        auto form = TESDataHandler ? TESDataHandler->LookupForm(id, modname) : nullptr;
+        result.form = form;
+    } catch (...) {
+    }
 
     return result;
 }
@@ -179,43 +194,49 @@ std::string DataPotion::Pack() {
 DataPotion DataPotion::Unpack(const std::string& _packed) {
     std::vector<std::string> dataVec = Utility::Split(_packed, Utility::delimiter);
 
-    assert(dataVec.size() == 4);
-
     DataPotion result;
-    result.type = static_cast<Data::DATATYPE>(std::stoi(dataVec[0]));
-    result.name = dataVec[1];
-
-    RE::FormID id = std::stoll(dataVec[2]);
-    auto modname = dataVec[3];
-    auto TESDataHandler = RE::TESDataHandler::GetSingleton();
-    RE::TESForm* form = nullptr;
-
-    if (!modname.empty()) {
-        form = TESDataHandler ? TESDataHandler->LookupForm(id, modname) : nullptr;
-    } else if (id != 0) {
-        // Dynamic form (e.g. player-crafted alchemy potion)
-        form = RE::TESForm::LookupByID(id);
+    if (dataVec.size() < 4) {
+        return result;
     }
 
-    // Fallback: If form could not be resolved (e.g. dynamic FormID shifted across reload),
-    // look up by potion name in the player's inventory
-    if (!form && !result.name.empty()) {
-        auto player = RE::PlayerCharacter::GetSingleton();
-        if (player && player->IsInitialized()) {
-            auto inv = player->GetInventory();
-            for (const auto& [item, data] : inv) {
-                const auto& [numItem, entry] = data;
-                if (numItem > 0 && item->Is(RE::FormType::AlchemyItem)) {
-                    if (item->GetName() == result.name) {
-                        form = item->As<RE::TESForm>();
-                        break;
+    try {
+        result.type = static_cast<Data::DATATYPE>(std::stoi(dataVec[0]));
+        result.name = dataVec[1];
+
+        RE::FormID id = std::stoll(dataVec[2]);
+        auto modname = dataVec[3];
+        auto TESDataHandler = RE::TESDataHandler::GetSingleton();
+        RE::TESForm* form = nullptr;
+
+        if (!modname.empty()) {
+            form = TESDataHandler ? TESDataHandler->LookupForm(id, modname) : nullptr;
+        } else if (id != 0) {
+            // Dynamic form (e.g. player-crafted alchemy potion)
+            form = RE::TESForm::LookupByID(id);
+        }
+
+        // Fallback: If form could not be resolved (e.g. dynamic FormID shifted across reload),
+        // look up by potion name in the player's inventory
+        if (!form && !result.name.empty()) {
+            auto player = RE::PlayerCharacter::GetSingleton();
+            if (player && player->IsInitialized()) {
+                auto inv = player->GetInventory();
+                for (const auto& [item, data] : inv) {
+                    const auto& [numItem, entry] = data;
+                    if (item && numItem > 0 && item->Is(RE::FormType::AlchemyItem)) {
+                        const char* itemName = item->GetName();
+                        if (itemName && itemName == result.name) {
+                            form = item->As<RE::TESForm>();
+                            break;
+                        }
                     }
                 }
             }
         }
-    }
 
-    result.form = form;
+        result.form = form;
+    } catch (...) {
+    }
 
     return result;
 }
@@ -271,7 +292,10 @@ void DataHandler::InitWeapon() {
     auto inv = player->GetInventory();
     for (const auto& [item, data] : inv) {
         const auto& [numItem, entry] = data;
-        if (numItem < 1) continue;
+        if (numItem < 1 || !item) continue;
+
+        const char* rawName = item->GetName();
+        std::string sName = rawName ? rawName : "";
 
         if (item->Is(RE::FormType::Weapon, RE::FormType::Armor)) {
             auto armor = item->As<RE::TESObjectARMO>();
@@ -279,14 +303,14 @@ void DataHandler::InitWeapon() {
 
             uint32_t numExtra = 0;
 
-            auto extraLists = entry->extraLists;
+            auto extraLists = entry ? entry->extraLists : nullptr;
             if (extraLists) {
                 for (auto& _xList : *extraLists) {
                     ++numExtra;
                     if (favorOnly && !Extra::IsFavorited(_xList)) continue;
 
                     type.push_back(Data::DATATYPE::WEAP);
-                    name.push_back(item->GetName());
+                    name.push_back(sName);
                     enchNum.push_back(Extra::GetEnchNum(item, _xList));
                     enchName.push_back(Extra::GetEnchName(item, _xList));
                     tempVal.push_back(Extra::GetTempValue(_xList));
@@ -298,7 +322,7 @@ void DataHandler::InitWeapon() {
 
             if (numExtra != numItem) {
                 type.push_back(Data::DATATYPE::WEAP);
-                name.push_back(item->GetName());
+                name.push_back(sName);
                 enchNum.push_back(Extra::GetEnchNum(item, nullptr));
                 enchName.push_back(Extra::GetEnchName(item, nullptr));
                 tempVal.push_back(0.0f);
@@ -306,7 +330,7 @@ void DataHandler::InitWeapon() {
             }
         } else if (item->Is(RE::FormType::Light)) {
             type.push_back(Data::DATATYPE::WEAP);
-            name.push_back(item->GetName());
+            name.push_back(sName);
             enchNum.push_back(0);
             enchName.push_back(Extra::ENCHNONE);
             tempVal.push_back(0.0f);
@@ -487,20 +511,25 @@ void DataHandler::InitArmor() {
     auto inv = player->GetInventory();
     for (const auto& [item, data] : inv) {
         const auto& [numItem, entry] = data;
-        if (numItem > 0 && item->Is(RE::FormType::Armor)) {
+        if (numItem < 1 || !item) continue;
+
+        const char* rawName = item->GetName();
+        std::string sName = rawName ? rawName : "";
+
+        if (item->Is(RE::FormType::Armor)) {
             auto armor = item->As<RE::TESObjectARMO>();
             if (armor && armor->IsShield()) continue;
 
             uint32_t numExtra = 0;
 
-            auto extraLists = entry->extraLists;
+            auto extraLists = entry ? entry->extraLists : nullptr;
             if (extraLists) {
                 for (auto& _xList : *extraLists) {
                     ++numExtra;
                     if (favorOnly && !Extra::IsFavorited(_xList)) continue;
 
                     type.push_back(Data::DATATYPE::ARMOR);
-                    name.push_back(item->GetName());
+                    name.push_back(sName);
                     enchNum.push_back(Extra::GetEnchNum(item, _xList));
                     enchName.push_back(Extra::GetEnchName(item, _xList));
                     tempVal.push_back(Extra::GetTempValue(_xList));
@@ -510,9 +539,9 @@ void DataHandler::InitArmor() {
 
             if (favorOnly) continue;
 
-            for (uint32_t i = numExtra; i < numItem; i++) {
+            for (uint32_t i = numExtra; i < static_cast<uint32_t>(numItem); i++) {
                 type.push_back(Data::DATATYPE::ARMOR);
-                name.push_back(item->GetName());
+                name.push_back(sName);
                 enchNum.push_back(Extra::GetEnchNum(item, nullptr));
                 enchName.push_back(Extra::GetEnchName(item, nullptr));
                 tempVal.push_back(0.0f);
@@ -582,105 +611,108 @@ void DataHandler::InitPotion() {
     auto inv = player->GetInventory();
     for (const auto& [item, data] : inv) {
         const auto& [numItem, entry] = data;
-        if (numItem > 0 && item->Is(RE::FormType::AlchemyItem)) {
-            auto potion = item->As<RE::AlchemyItem>();
-            if (!potion) continue;
+        if (numItem < 1 || !item || !item->Is(RE::FormType::AlchemyItem)) continue;
 
-            uint32_t foundType = 0;
+        auto potion = item->As<RE::AlchemyItem>();
+        if (!potion) continue;
+
+        const char* rawName = item->GetName();
+        std::string sName = rawName ? rawName : "";
+
+        uint32_t foundType = 0;
+        for (auto effect : potion->effects) {
+            auto baseEffect = effect ? effect->baseEffect : nullptr;
+            if (!baseEffect) break;
+
+            auto formid = baseEffect->GetFormID();
+            for (const auto& elem : config->healthVec) {
+                auto compare = TESDataHandler->LookupFormID(elem.formid, elem.modname);
+                if (formid == compare) {
+                    foundType = 1;
+                    break;
+                }
+            }
+            if (foundType != 0) break;
+
+            for (const auto& elem : config->magickaVec) {
+                auto compare = TESDataHandler->LookupFormID(elem.formid, elem.modname);
+                if (formid == compare) {
+                    foundType = 2;
+                    break;
+                }
+            }
+            if (foundType != 0) break;
+
+            for (const auto& elem : config->staminaVec) {
+                auto compare = TESDataHandler->LookupFormID(elem.formid, elem.modname);
+                if (formid == compare) {
+                    foundType = 3;
+                    break;
+                }
+            }
+            if (foundType != 0) break;
+        }
+
+        // Universal fallback: Check ActorValue and Archetype for beneficial restoration/fortification
+        // This detects player-crafted potions and modded potions (e.g. CACO, Apothecary)
+        if (foundType == 0) {
             for (auto effect : potion->effects) {
-                auto baseEffect = effect->baseEffect;
+                auto baseEffect = effect ? effect->baseEffect : nullptr;
                 if (!baseEffect) break;
 
-                auto formid = baseEffect->GetFormID();
-                for (const auto& elem : config->healthVec) {
-                    auto compare = TESDataHandler->LookupFormID(elem.formid, elem.modname);
-                    if (formid == compare) {
+                auto av = baseEffect->data.primaryAV;
+                auto arch = baseEffect->GetArchetype();
+                bool isBeneficial = !baseEffect->data.flags.any(RE::EffectSetting::EffectSettingData::Flag::kHostile,
+                                                               RE::EffectSetting::EffectSettingData::Flag::kDetrimental);
+                if (isBeneficial && (arch == RE::EffectSetting::Archetype::kValueModifier ||
+                                     arch == RE::EffectSetting::Archetype::kPeakValueModifier)) {
+                    if (av == RE::ActorValue::kHealth) {
                         foundType = 1;
                         break;
-                    }
-                }
-                if (foundType != 0) break;
-
-                for (const auto& elem : config->magickaVec) {
-                    auto compare = TESDataHandler->LookupFormID(elem.formid, elem.modname);
-                    if (formid == compare) {
+                    } else if (av == RE::ActorValue::kMagicka) {
                         foundType = 2;
                         break;
-                    }
-                }
-                if (foundType != 0) break;
-
-                for (const auto& elem : config->staminaVec) {
-                    auto compare = TESDataHandler->LookupFormID(elem.formid, elem.modname);
-                    if (formid == compare) {
+                    } else if (av == RE::ActorValue::kStamina) {
                         foundType = 3;
                         break;
                     }
                 }
-                if (foundType != 0) break;
             }
+        }
 
-            // Universal fallback: Check ActorValue and Archetype for beneficial restoration/fortification
-            // This detects player-crafted potions and modded potions (e.g. CACO, Apothecary)
-            if (foundType == 0) {
-                for (auto effect : potion->effects) {
-                    auto baseEffect = effect->baseEffect;
-                    if (!baseEffect) break;
-
-                    auto av = baseEffect->data.primaryAV;
-                    auto arch = baseEffect->GetArchetype();
-                    bool isBeneficial = !baseEffect->data.flags.any(RE::EffectSetting::EffectSettingData::Flag::kHostile,
-                                                                   RE::EffectSetting::EffectSettingData::Flag::kDetrimental);
-                    if (isBeneficial && (arch == RE::EffectSetting::Archetype::kValueModifier ||
-                                         arch == RE::EffectSetting::Archetype::kPeakValueModifier)) {
-                        if (av == RE::ActorValue::kHealth) {
-                            foundType = 1;
-                            break;
-                        } else if (av == RE::ActorValue::kMagicka) {
-                            foundType = 2;
-                            break;
-                        } else if (av == RE::ActorValue::kStamina) {
-                            foundType = 3;
-                            break;
-                        }
-                    }
+        bool isFavorited = false;
+        if (entry && entry->extraLists) {
+            for (auto& _xList : *entry->extraLists) {
+                if (_xList && Extra::IsFavorited(_xList)) {
+                    isFavorited = true;
+                    break;
                 }
             }
+        }
 
-            bool isFavorited = false;
-            if (entry->extraLists) {
-                for (auto& _xList : *entry->extraLists) {
-                    if (Extra::IsFavorited(_xList)) {
-                        isFavorited = true;
-                        break;
-                    }
-                }
-            }
+        if (favorOnly && !isFavorited) continue;
 
-            if (favorOnly && !isFavorited) continue;
-
-            switch (foundType) {
-                case 1:
-                    type_health.push_back(Data::DATATYPE::POTION);
-                    name_health.push_back(item->GetName());
-                    form_health.push_back(item->As<RE::TESForm>());
-                    break;
-                case 2:
-                    type_magicka.push_back(Data::DATATYPE::POTION);
-                    name_magicka.push_back(item->GetName());
-                    form_magicka.push_back(item->As<RE::TESForm>());
-                    break;
-                case 3:
-                    type_stamina.push_back(Data::DATATYPE::POTION);
-                    name_stamina.push_back(item->GetName());
-                    form_stamina.push_back(item->As<RE::TESForm>());
-                    break;
-                default:
-                    type.push_back(Data::DATATYPE::POTION);
-                    name.push_back(item->GetName());
-                    form.push_back(item->As<RE::TESForm>());
-                    break;
-            }
+        switch (foundType) {
+            case 1:
+                type_health.push_back(Data::DATATYPE::POTION);
+                name_health.push_back(sName);
+                form_health.push_back(item->As<RE::TESForm>());
+                break;
+            case 2:
+                type_magicka.push_back(Data::DATATYPE::POTION);
+                name_magicka.push_back(sName);
+                form_magicka.push_back(item->As<RE::TESForm>());
+                break;
+            case 3:
+                type_stamina.push_back(Data::DATATYPE::POTION);
+                name_stamina.push_back(sName);
+                form_stamina.push_back(item->As<RE::TESForm>());
+                break;
+            default:
+                type.push_back(Data::DATATYPE::POTION);
+                name.push_back(sName);
+                form.push_back(item->As<RE::TESForm>());
+                break;
         }
     }
 
@@ -716,13 +748,18 @@ std::string WidgetIcon::Pack() {
 WidgetIcon WidgetIcon::Unpack(const std::string& _packed) {
     std::vector<std::string> dataVec = Utility::Split(_packed, Utility::delimiter);
 
-    assert(dataVec.size() == 4);
-
     WidgetIcon result;
-    result.enable = Utility::to_bool(dataVec[0]);
-    result.type = dataVec[1];
-    result.offsetX = std::stoi(dataVec[2]);
-    result.offsetY = std::stoi(dataVec[3]);
+    if (dataVec.size() < 4) {
+        return result;
+    }
+
+    try {
+        result.enable = Utility::to_bool(dataVec[0]);
+        result.type = dataVec[1];
+        result.offsetX = std::stoi(dataVec[2]);
+        result.offsetY = std::stoi(dataVec[3]);
+    } catch (...) {
+    }
 
     return result;
 }
@@ -741,13 +778,18 @@ std::string WidgetText::Pack() {
 WidgetText WidgetText::Unpack(const std::string& _packed) {
     std::vector<std::string> dataVec = Utility::Split(_packed, Utility::delimiter);
 
-    assert(dataVec.size() == 4);
-
     WidgetText result;
-    result.enable = Utility::to_bool(dataVec[0]);
-    result.align = static_cast<WidgetText::ALIGN_TYPE>(std::stoi(dataVec[1]));
-    result.offsetX = std::stoi(dataVec[2]);
-    result.offsetY = std::stoi(dataVec[3]);
+    if (dataVec.size() < 4) {
+        return result;
+    }
+
+    try {
+        result.enable = Utility::to_bool(dataVec[0]);
+        result.align = static_cast<WidgetText::ALIGN_TYPE>(std::stoi(dataVec[1]));
+        result.offsetX = std::stoi(dataVec[2]);
+        result.offsetY = std::stoi(dataVec[3]);
+    } catch (...) {
+    }
 
     return result;
 }

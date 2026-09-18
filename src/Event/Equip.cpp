@@ -42,7 +42,8 @@ EquipHandler::EventResult EquipHandler::ProcessEvent(const RE::TESEquipEvent* _e
                     }
                 }
 
-                equipment->NotifyArmor(_event->equipped, result, form->GetName());
+                const char* formName = form->GetName();
+                equipment->NotifyArmor(_event->equipped, result, formName ? formName : "");
             }
         }
 

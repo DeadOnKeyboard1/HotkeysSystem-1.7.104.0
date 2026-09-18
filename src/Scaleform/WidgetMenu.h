@@ -34,7 +34,11 @@ namespace Scaleform {
                     a_def->SetState(RE::GFxState::StateType::kLog, RE::make_gptr<Logger>().get());
                 });
 
-            assert(success);
+            if (!success || !menu->uiMovie) {
+                logger::error("Failed to load Scaleform movie: {}", FILE_NAME);
+                return;
+            }
+
             menuFlags.set(RE::UI_MENU_FLAGS::kAllowSaving);
             menuFlags.set(RE::UI_MENU_FLAGS::kAlwaysOpen);
 

@@ -139,12 +139,12 @@ namespace Actor {
 
         auto inv = player->GetInventory();
         for (const auto& [item, data] : inv) {
-            if (item->Is(RE::FormType::LeveledItem)) {
+            if (!item || item->Is(RE::FormType::LeveledItem)) {
                 continue;
             }
 
             const auto& [numItems, entry] = data;
-            if (numItems > 0 && entry->IsWorn()) {
+            if (numItems > 0 && entry && entry->IsWorn()) {
                 result.push_back(item);
             }
         }
@@ -165,7 +165,7 @@ namespace Actor {
         for (const auto& [item, data] : inv) {
             const auto& [numItem, entry] = data;
 
-            if (numItem > 0 && item->GetFormID() == _form->GetFormID()) {
+            if (item && numItem > 0 && item->GetFormID() == _form->GetFormID()) {
                 return true;
             }
         }

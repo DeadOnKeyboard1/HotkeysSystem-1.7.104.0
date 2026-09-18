@@ -14,13 +14,24 @@ static void WriteString(SKSE::SerializationInterface* serde, const std::string& 
 }
 
 static void ReadString(SKSE::SerializationInterface* serde, std::string* _dataOut) {
-    if (!serde) return;
+    if (!serde || !_dataOut) return;
 
-    uint32_t length;
-    serde->ReadRecordData(&length, sizeof(length));
+    uint32_t length = 0;
+    if (!serde->ReadRecordData(&length, sizeof(length))) {
+        _dataOut->clear();
+        return;
+    }
+
+    if (length > 10 * 1024 * 1024) {
+        logger::error("ReadString encountered excessively large string length: {}", length);
+        _dataOut->clear();
+        return;
+    }
 
     _dataOut->resize(length);
-    serde->ReadRecordData(const_cast<char*>(_dataOut->c_str()), length);
+    if (length > 0) {
+        serde->ReadRecordData(_dataOut->data(), length);
+    }
 }
 
 static uint16_t GetVersionMajor() {
@@ -368,8 +379,7 @@ namespace Serialize {
                 ImportEquipset(Type::SAVE, serde);
                 manager->SyncSortOrder();
             } else {
-                logger::warn("Unknown record type in cosave.");
-                __assume(false);
+                logger::warn("Unknown or unsupported record in cosave: type {:x}, version {}", type, version);
             }
         }
     }
