@@ -188,7 +188,33 @@ DataPotion DataPotion::Unpack(const std::string& _packed) {
     RE::FormID id = std::stoll(dataVec[2]);
     auto modname = dataVec[3];
     auto TESDataHandler = RE::TESDataHandler::GetSingleton();
-    auto form = TESDataHandler ? TESDataHandler->LookupForm(id, modname) : nullptr;
+    RE::TESForm* form = nullptr;
+
+    if (!modname.empty()) {
+        form = TESDataHandler ? TESDataHandler->LookupForm(id, modname) : nullptr;
+    } else if (id != 0) {
+        // Dynamic form (e.g. player-crafted alchemy potion)
+        form = RE::TESForm::LookupByID(id);
+    }
+
+    // Fallback: If form could not be resolved (e.g. dynamic FormID shifted across reload),
+    // look up by potion name in the player's inventory
+    if (!form && !result.name.empty()) {
+        auto player = RE::PlayerCharacter::GetSingleton();
+        if (player && player->IsInitialized()) {
+            auto inv = player->GetInventory();
+            for (const auto& [item, data] : inv) {
+                const auto& [numItem, entry] = data;
+                if (numItem > 0 && item->Is(RE::FormType::AlchemyItem)) {
+                    if (item->GetName() == result.name) {
+                        form = item->As<RE::TESForm>();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     result.form = form;
 
     return result;
@@ -573,6 +599,8 @@ void DataHandler::InitPotion() {
                         break;
                     }
                 }
+                if (foundType != 0) break;
+
                 for (const auto& elem : config->magickaVec) {
                     auto compare = TESDataHandler->LookupFormID(elem.formid, elem.modname);
                     if (formid == compare) {
@@ -580,6 +608,8 @@ void DataHandler::InitPotion() {
                         break;
                     }
                 }
+                if (foundType != 0) break;
+
                 for (const auto& elem : config->staminaVec) {
                     auto compare = TESDataHandler->LookupFormID(elem.formid, elem.modname);
                     if (formid == compare) {
@@ -587,39 +617,47 @@ void DataHandler::InitPotion() {
                         break;
                     }
                 }
+                if (foundType != 0) break;
             }
 
-            auto extraLists = entry->extraLists;
-            if (extraLists) {
-                for (auto& _xList : *extraLists) {
-                    if (favorOnly && !Extra::IsFavorited(_xList)) continue;
+            // Universal fallback: Check ActorValue and Archetype for beneficial restoration/fortification
+            // This detects player-crafted potions and modded potions (e.g. CACO, Apothecary)
+            if (foundType == 0) {
+                for (auto effect : potion->effects) {
+                    auto baseEffect = effect->baseEffect;
+                    if (!baseEffect) break;
 
-                    switch (foundType) {
-                        case 1:
-                            type_health.push_back(Data::DATATYPE::POTION);
-                            name_health.push_back(item->GetName());
-                            form_health.push_back(item->As<RE::TESForm>());
+                    auto av = baseEffect->data.primaryAV;
+                    auto arch = baseEffect->GetArchetype();
+                    bool isBeneficial = !baseEffect->data.flags.any(RE::EffectSetting::EffectSettingData::Flag::kHostile,
+                                                                   RE::EffectSetting::EffectSettingData::Flag::kDetrimental);
+                    if (isBeneficial && (arch == RE::EffectSetting::Archetype::kValueModifier ||
+                                         arch == RE::EffectSetting::Archetype::kPeakValueModifier)) {
+                        if (av == RE::ActorValue::kHealth) {
+                            foundType = 1;
                             break;
-                        case 2:
-                            type_magicka.push_back(Data::DATATYPE::POTION);
-                            name_magicka.push_back(item->GetName());
-                            form_magicka.push_back(item->As<RE::TESForm>());
+                        } else if (av == RE::ActorValue::kMagicka) {
+                            foundType = 2;
                             break;
-                        case 3:
-                            type_stamina.push_back(Data::DATATYPE::POTION);
-                            name_stamina.push_back(item->GetName());
-                            form_stamina.push_back(item->As<RE::TESForm>());
+                        } else if (av == RE::ActorValue::kStamina) {
+                            foundType = 3;
                             break;
-                        default:
-                            type.push_back(Data::DATATYPE::POTION);
-                            name.push_back(item->GetName());
-                            form.push_back(item->As<RE::TESForm>());
-                            break;
+                        }
                     }
                 }
             }
 
-            if (favorOnly) continue;
+            bool isFavorited = false;
+            if (entry->extraLists) {
+                for (auto& _xList : *entry->extraLists) {
+                    if (Extra::IsFavorited(_xList)) {
+                        isFavorited = true;
+                        break;
+                    }
+                }
+            }
+
+            if (favorOnly && !isFavorited) continue;
 
             switch (foundType) {
                 case 1:

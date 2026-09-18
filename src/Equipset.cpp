@@ -308,6 +308,32 @@ void PotionSet::Equip() {
     using TYPE = DataPotion::DATATYPE;
     auto equipset = this;
 
+    // Resolve player-crafted or dynamic potions whose FormID may have changed across brewing or reload
+    auto resolvePotion = [&](DataPotion& pot) {
+        if (pot.type == TYPE::NOTHING || pot.type == TYPE::POTION_AUTO_HIGHEST || pot.type == TYPE::POTION_AUTO_LOWEST) {
+            return;
+        }
+        if ((!pot.form || !Actor::HasItem(player, pot.form)) && !pot.name.empty()) {
+            auto inv = player->GetInventory();
+            for (const auto& [item, data] : inv) {
+                const auto& [numItem, entry] = data;
+                if (numItem > 0 && item->Is(RE::FormType::AlchemyItem)) {
+                    if (item->GetName() == pot.name) {
+                        pot.form = item->As<RE::TESForm>();
+                        break;
+                    }
+                }
+            }
+        }
+    };
+
+    resolvePotion(equipset->health);
+    resolvePotion(equipset->magicka);
+    resolvePotion(equipset->stamina);
+    for (auto& item : equipset->items) {
+        resolvePotion(item);
+    }
+
     if (equipset->health.type != TYPE::NOTHING) {
         if (equipset->health.form) {
             EquipItem(equipset->health.form, nullptr, equipset->equipSound, nullptr);
@@ -984,83 +1010,112 @@ void PotionSet::AssignAutoPotion() {
                 auto baseEffect = effect->baseEffect;
                 if (!baseEffect) break;
 
+                bool isHealth = false;
+                bool isMagicka = false;
+                bool isStamina = false;
+
                 auto formid = baseEffect->GetFormID();
                 for (const auto& elem : config->healthVec) {
                     auto compare = TESDataHandler->LookupFormID(elem.formid, elem.modname);
                     if (formid == compare) {
-                        health.push_back(potion);
-                        health_magnitude.push_back(effect->GetMagnitude());
-                        health_duration.push_back(effect->GetDuration());
+                        isHealth = true;
                         break;
                     }
                 }
                 for (const auto& elem : config->magickaVec) {
                     auto compare = TESDataHandler->LookupFormID(elem.formid, elem.modname);
                     if (formid == compare) {
-                        magicka.push_back(potion);
-                        magicka_magnitude.push_back(effect->GetMagnitude());
-                        magicka_duration.push_back(effect->GetDuration());
+                        isMagicka = true;
                         break;
                     }
                 }
                 for (const auto& elem : config->staminaVec) {
                     auto compare = TESDataHandler->LookupFormID(elem.formid, elem.modname);
                     if (formid == compare) {
-                        stamina.push_back(potion);
-                        stamina_magnitude.push_back(effect->GetMagnitude());
-                        stamina_duration.push_back(effect->GetDuration());
+                        isStamina = true;
                         break;
                     }
+                }
+
+                // Universal fallback: Check ActorValue and Archetype for beneficial restoration/fortification
+                // This detects player-crafted potions and modded potions (e.g. CACO, Apothecary)
+                if (!isHealth && !isMagicka && !isStamina) {
+                    auto av = baseEffect->data.primaryAV;
+                    auto arch = baseEffect->GetArchetype();
+                    bool isBeneficial = !baseEffect->data.flags.any(RE::EffectSetting::EffectSettingData::Flag::kHostile,
+                                                                   RE::EffectSetting::EffectSettingData::Flag::kDetrimental);
+                    if (isBeneficial && (arch == RE::EffectSetting::Archetype::kValueModifier ||
+                                         arch == RE::EffectSetting::Archetype::kPeakValueModifier)) {
+                        if (av == RE::ActorValue::kHealth) isHealth = true;
+                        else if (av == RE::ActorValue::kMagicka) isMagicka = true;
+                        else if (av == RE::ActorValue::kStamina) isStamina = true;
+                    }
+                }
+
+                if (isHealth) {
+                    health.push_back(potion);
+                    health_magnitude.push_back(effect->GetMagnitude());
+                    health_duration.push_back(effect->GetDuration());
+                }
+                if (isMagicka) {
+                    magicka.push_back(potion);
+                    magicka_magnitude.push_back(effect->GetMagnitude());
+                    magicka_duration.push_back(effect->GetDuration());
+                }
+                if (isStamina) {
+                    stamina.push_back(potion);
+                    stamina_magnitude.push_back(effect->GetMagnitude());
+                    stamina_duration.push_back(effect->GetDuration());
                 }
             }
         }
     }
 
     if (this->health.type == Data::DATATYPE::POTION_AUTO_HIGHEST) {
-        auto form = GetMinMaxPotion(true, this->calcDuration, health, health_magnitude, health_duration);
-        if (form) this->health.form = form;
-
+        this->health.form = GetMinMaxPotion(true, this->calcDuration, health, health_magnitude, health_duration);
     } else if (this->health.type == Data::DATATYPE::POTION_AUTO_LOWEST) {
-        auto form = GetMinMaxPotion(false, this->calcDuration, health, health_magnitude, health_duration);
-        if (form) this->health.form = form;
+        this->health.form = GetMinMaxPotion(false, this->calcDuration, health, health_magnitude, health_duration);
     }
 
     if (this->magicka.type == Data::DATATYPE::POTION_AUTO_HIGHEST) {
-        auto form = GetMinMaxPotion(true, this->calcDuration, magicka, magicka_magnitude, magicka_duration);
-        if (form) this->magicka.form = form;
-
+        this->magicka.form = GetMinMaxPotion(true, this->calcDuration, magicka, magicka_magnitude, magicka_duration);
     } else if (this->magicka.type == Data::DATATYPE::POTION_AUTO_LOWEST) {
-        auto form = GetMinMaxPotion(false, this->calcDuration, magicka, magicka_magnitude, magicka_duration);
-        if (form) this->magicka.form = form;
+        this->magicka.form = GetMinMaxPotion(false, this->calcDuration, magicka, magicka_magnitude, magicka_duration);
     }
 
     if (this->stamina.type == Data::DATATYPE::POTION_AUTO_HIGHEST) {
-        auto form = GetMinMaxPotion(true, this->calcDuration, stamina, stamina_magnitude, stamina_duration);
-        if (form) this->stamina.form = form;
-
+        this->stamina.form = GetMinMaxPotion(true, this->calcDuration, stamina, stamina_magnitude, stamina_duration);
     } else if (this->stamina.type == Data::DATATYPE::POTION_AUTO_LOWEST) {
-        auto form = GetMinMaxPotion(false, this->calcDuration, stamina, stamina_magnitude, stamina_duration);
-        if (form) this->stamina.form = form;
+        this->stamina.form = GetMinMaxPotion(false, this->calcDuration, stamina, stamina_magnitude, stamina_duration);
     }
 }
 
-static std::string GetAmount(RE::TESForm* _item) {
+static std::string GetAmount(RE::TESForm* _item, const std::string& _fallbackName = "") {
     std::string result = "0";
-
-    if (!_item) return result;
 
     auto player = RE::PlayerCharacter::GetSingleton();
     if (!player) return result;
 
     auto inv = player->GetInventory();
-    for (const auto& [item, data] : inv) {
-        const auto& [numItem, entry] = data;
-        if (numItem > 0 && item->Is(RE::FormType::AlchemyItem)) {
-            auto id = item->GetFormID();
-            auto compareid = _item->GetFormID();
+    if (_item) {
+        for (const auto& [item, data] : inv) {
+            const auto& [numItem, entry] = data;
+            if (numItem > 0 && item->Is(RE::FormType::AlchemyItem)) {
+                if (item->GetFormID() == _item->GetFormID()) {
+                    return std::to_string(numItem);
+                }
+            }
+        }
+    }
 
-            if (id == compareid) {
-                return std::to_string(numItem);
+    // Fallback: If not found by FormID, match by name for dynamic player-crafted potions
+    if (!_fallbackName.empty()) {
+        for (const auto& [item, data] : inv) {
+            const auto& [numItem, entry] = data;
+            if (numItem > 0 && item->Is(RE::FormType::AlchemyItem)) {
+                if (item->GetName() == _fallbackName) {
+                    return std::to_string(numItem);
+                }
             }
         }
     }
@@ -1085,14 +1140,14 @@ std::string PotionSet::GetPotionName() {
 
 std::string PotionSet::GetPotionAmount() {
     std::string result = "0";
-    if (this->health.form) {
-        result = GetAmount(this->health.form);
-    } else if (this->magicka.form) {
-        result = GetAmount(this->magicka.form);
-    } else if (this->stamina.form) {
-        result = GetAmount(this->stamina.form);
-    } else if (this->items.size() > 0 && this->items[0].form) {
-        result = GetAmount(this->items[0].form);
+    if (this->health.type != Data::DATATYPE::NOTHING) {
+        result = GetAmount(this->health.form, this->health.name);
+    } else if (this->magicka.type != Data::DATATYPE::NOTHING) {
+        result = GetAmount(this->magicka.form, this->magicka.name);
+    } else if (this->stamina.type != Data::DATATYPE::NOTHING) {
+        result = GetAmount(this->stamina.form, this->stamina.name);
+    } else if (this->items.size() > 0 && this->items[0].type != Data::DATATYPE::NOTHING) {
+        result = GetAmount(this->items[0].form, this->items[0].name);
     }
 
     return result;
