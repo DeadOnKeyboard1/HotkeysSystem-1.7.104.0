@@ -29,8 +29,21 @@ This repository provides an updated, feature-enhanced port compatible with:
   - **Armor Slot Widgets**: Move individual armor slots freely on screen, or hold **Shift** while dragging to move the entire armor stack.
   - **Real-Time Visual Indicators**: Gold highlighting rings and text bounding boxes provide clear feedback while hovering and dragging.
   - Automatic persistent coordinate saving to configuration files upon mouse release.
+- **Automatic Symbol-to-Box Scale Containment**:
+  - All widgets (Armor stack on the left; Weapons, Shout, and Equipsets on the right) automatically scale icons to fit the active background box.
+  - **Square & Round Themes**: Icons expand to fill ~65% of the visual box size, perfectly centered with clean border padding (fixing undersized icons in square frames).
+  - **Diamond Themes**: Inscribed square geometry (~46%) ensures icon corners never poke through sloped diagonal borders.
+  - **Standard Theme (No Box)**: Icons use pure symbol scaling without box padding.
+- **Pure Theme Swapping**:
+  - Selecting a theme preset from the dropdown swaps only the background textures and transparency.
+  - Custom positions, alignments, and user layouts are completely preserved—no unwanted shifting or re-aligning.
+- **Single-Column Upward Armor Stacking**:
+  - Auto-arranges armor slots into a clean, single vertical column anchored at the bottom-most slot (Boots / Slot 37) upwards.
+  - Newly activated slots (e.g. Cloak, Shield, Rings) stack directly above the helmet without jumping into the center of the screen.
+- **Full Equipment & Layout Reset**:
+  - Dedicated "Reset to Defaults" option restores authentic baseline layout, spacing, and dimensions.
 - **Widget & Font Size Sliders**:
-  - Proportional widget scaling (0% to 200%) with automatic diamond background adjustment (`bgSize = round(widgetSize * 2.625)`).
+  - Proportional widget scaling (0% to 200%) with synchronous background adjustment.
   - Independent font size sliders for all equipment widgets.
 - **Full Multilingual Localization (13 Languages)**:
   - Complete translations for all new options, HUD settings, and slot descriptions (Slots 30–61):
