@@ -40,6 +40,7 @@ ContainerHandler::EventResult ContainerHandler::ProcessEvent(
     if (!widgetHandler) return EventResult::kContinue;
 
     for (auto equipset : manager->equipsetVec) {
+        if (!equipset) continue;
         if (equipset->type != Equipset::TYPE::POTION) continue;
         
         auto potionset = static_cast<PotionSet*>(equipset);

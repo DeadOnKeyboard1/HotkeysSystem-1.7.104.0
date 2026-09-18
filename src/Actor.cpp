@@ -72,7 +72,7 @@ namespace Actor {
         if (!base) return nullptr;
 
         auto data = base->GetSpellList();
-        if (data && _index < data->numSpells) {
+        if (data && data->spells && _index < data->numSpells) {
             return data->spells[_index];
         }
 
@@ -86,7 +86,7 @@ namespace Actor {
         if (!race) return nullptr;
 
         auto data = race->actorEffects;
-        if (data && _index < data->numSpells) {
+        if (data && data->spells && _index < data->numSpells) {
             return data->spells[_index];
         }
 
@@ -100,7 +100,7 @@ namespace Actor {
         if (!base) return nullptr;
 
         auto data = base->GetSpellList();
-        if (data && _index < data->numShouts) {
+        if (data && data->shouts && _index < data->numShouts) {
             return data->shouts[_index];
         }
 
@@ -114,7 +114,7 @@ namespace Actor {
         if (!race) return nullptr;
 
         auto data = race->actorEffects;
-        if (data && _index < data->numShouts) {
+        if (data && data->shouts && _index < data->numShouts) {
             return data->shouts[_index];
         }
 

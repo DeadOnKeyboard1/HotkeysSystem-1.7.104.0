@@ -369,8 +369,9 @@ void DataHandler::InitWeapon() {
         if (spellType == RE::MagicSystem::SpellType::kSpell) {
             if (favorOnly && !Extra::IsMagicFavorited(spell)) continue;
 
+            const char* spName = spell->GetName();
             type.push_back(Data::DATATYPE::SPELL);
-            name.push_back(spell->GetName());
+            name.push_back(spName ? spName : "");
             enchNum.push_back(0);
             enchName.push_back(Extra::ENCHNONE);
             tempVal.push_back(0.0f);
@@ -419,8 +420,9 @@ void DataHandler::InitShout() {
             powerType == RE::MagicSystem::SpellType::kLesserPower) {
             if (favorOnly && !Extra::IsMagicFavorited(power)) continue;
 
+            const char* pName = power->GetName();
             type.push_back(Data::DATATYPE::SHOUT);
-            name.push_back(power->GetName());
+            name.push_back(pName ? pName : "");
             form.push_back(power->As<RE::TESForm>());
         }
     }
@@ -435,8 +437,9 @@ void DataHandler::InitShout() {
             powerType == RE::MagicSystem::SpellType::kLesserPower) {
             if (favorOnly && !Extra::IsMagicFavorited(power)) continue;
 
+            const char* pName = power->GetName();
             type.push_back(Data::DATATYPE::SHOUT);
-            name.push_back(power->GetName());
+            name.push_back(pName ? pName : "");
             form.push_back(power->As<RE::TESForm>());
         }
     }
@@ -451,8 +454,9 @@ void DataHandler::InitShout() {
             powerType == RE::MagicSystem::SpellType::kLesserPower) {
             if (favorOnly && !Extra::IsMagicFavorited(power)) continue;
 
+            const char* pName = power->GetName();
             type.push_back(Data::DATATYPE::SHOUT);
-            name.push_back(power->GetName());
+            name.push_back(pName ? pName : "");
             form.push_back(power->As<RE::TESForm>());
         }
     }
@@ -464,8 +468,9 @@ void DataHandler::InitShout() {
 
         if (favorOnly && !Extra::IsMagicFavorited(shout)) continue;
 
+        const char* sName = shout->GetName();
         type.push_back(Data::DATATYPE::SHOUT);
-        name.push_back(shout->GetName());
+        name.push_back(sName ? sName : "");
         form.push_back(shout->As<RE::TESForm>());
     }
 
@@ -476,8 +481,9 @@ void DataHandler::InitShout() {
 
         if (favorOnly && !Extra::IsMagicFavorited(shout)) continue;
 
+        const char* sName = shout->GetName();
         type.push_back(Data::DATATYPE::SHOUT);
-        name.push_back(shout->GetName());
+        name.push_back(sName ? sName : "");
         form.push_back(shout->As<RE::TESForm>());
     }
 

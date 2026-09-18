@@ -73,18 +73,23 @@ void DXGIPresentHook::thunk(std::uint32_t a_p1) {
 
     if (!D3DInitHook::initialized.load()) return;
 
-    callback_mutex.lock();
-    for (auto& fn : pre_callbacks) fn();
-    callback_mutex.unlock();
+    {
+        std::lock_guard<std::mutex> lock(callback_mutex);
+        for (auto& fn : pre_callbacks) fn();
+    }
 
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    callback_mutex.lock();
-    for (auto& fn : mid_callbacks) fn();
-    callback_mutex.unlock();
+    {
+        std::lock_guard<std::mutex> lock(callback_mutex);
+        for (auto& fn : mid_callbacks) fn();
+    }
 
     ImGui::Render();
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    auto draw_data = ImGui::GetDrawData();
+    if (draw_data) {
+        ImGui_ImplDX11_RenderDrawData(draw_data);
+    }
 }

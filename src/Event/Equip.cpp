@@ -34,9 +34,9 @@ EquipHandler::EventResult EquipHandler::ProcessEvent(const RE::TESEquipEvent* _e
                 equipment->NotifyWeapon(_event->equipped, form);
             } else {
                 auto armor_slot = static_cast<uint32_t>(armor->GetSlotMask());
-                int flag = 1;
+                uint32_t flag = 1u;
                 std::vector<uint32_t> result;
-                for (int i = 0; i < 32; i++) {
+                for (uint32_t i = 0; i < 32; i++) {
                     if (armor_slot & (flag << i)) {
                         result.push_back(i);
                     }

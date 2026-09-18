@@ -142,24 +142,33 @@ void NormalSet::Equip() {
             equipset->lefthand.type != Data::DATATYPE::UNEQUIP) {
             if (!equippedLeft) {
                 equipLeft = true;
-            } else if (equippedLeft->GetName() != equipset->lefthand.name) {
-                equipLeft = true;
+            } else {
+                const char* leftName = equippedLeft->GetName();
+                if (!leftName || leftName != equipset->lefthand.name) {
+                    equipLeft = true;
+                }
             }
         }
         if (equipset->righthand.type != Data::DATATYPE::NOTHING &&
             equipset->righthand.type != Data::DATATYPE::UNEQUIP) {
             if (!equippedRight) {
                 equipRight = true;
-            } else if (equippedRight->GetName() != equipset->righthand.name) {
-                equipRight = true;
+            } else {
+                const char* rightName = equippedRight->GetName();
+                if (!rightName || rightName != equipset->righthand.name) {
+                    equipRight = true;
+                }
             }
         }
         if (equipset->shout.type != Data::DATATYPE::NOTHING &&
             equipset->shout.type != Data::DATATYPE::UNEQUIP) {
             if (!equippedShout) {
                 equipShout = true;
-            } else if (equippedShout->GetName() != equipset->shout.name) {
-                equipShout = true;
+            } else {
+                const char* shoutName = equippedShout->GetName();
+                if (!shoutName || shoutName != equipset->shout.name) {
+                    equipShout = true;
+                }
             }
         }
 
@@ -170,8 +179,9 @@ void NormalSet::Equip() {
 
             std::vector<RE::TESForm*> items = Actor::GetAllEquippedItems();
             for (const auto& elem : items) {
-                if (elem) {
-                    itemsName.push_back(elem->GetName());
+                const char* elemName = elem ? elem->GetName() : nullptr;
+                if (elemName) {
+                    itemsName.push_back(elemName);
                 } else {
                     itemsName.push_back("_NONE_");
                 }
@@ -319,8 +329,9 @@ void PotionSet::Equip() {
             auto inv = player->GetInventory();
             for (const auto& [item, data] : inv) {
                 const auto& [numItem, entry] = data;
-                if (numItem > 0 && item->Is(RE::FormType::AlchemyItem)) {
-                    if (item->GetName() == pot.name) {
+                if (numItem > 0 && item && item->Is(RE::FormType::AlchemyItem)) {
+                    const char* itemName = item->GetName();
+                    if (itemName && itemName == pot.name) {
                         pot.form = item->As<RE::TESForm>();
                         break;
                     }
@@ -1137,8 +1148,9 @@ static std::string GetAmount(RE::TESForm* _item, const std::string& _fallbackNam
     if (!_fallbackName.empty()) {
         for (const auto& [item, data] : inv) {
             const auto& [numItem, entry] = data;
-            if (numItem > 0 && item->Is(RE::FormType::AlchemyItem)) {
-                if (item->GetName() == _fallbackName) {
+            if (numItem > 0 && item && item->Is(RE::FormType::AlchemyItem)) {
+                const char* itemName = item->GetName();
+                if (itemName && itemName == _fallbackName) {
                     return std::to_string(numItem);
                 }
             }
@@ -1152,13 +1164,22 @@ std::string PotionSet::GetPotionName() {
     std::string result = this->name;
     if (this->health.type == Data::DATATYPE::POTION_AUTO_HIGHEST ||
         this->health.type == Data::DATATYPE::POTION_AUTO_LOWEST) {
-        if (this->health.form) result = this->health.form->GetName();
+        if (this->health.form) {
+            const char* n = this->health.form->GetName();
+            if (n) result = n;
+        }
     } else if (this->magicka.type == Data::DATATYPE::POTION_AUTO_HIGHEST ||
                this->magicka.type == Data::DATATYPE::POTION_AUTO_LOWEST) {
-        if (this->magicka.form) result = this->magicka.form->GetName();
+        if (this->magicka.form) {
+            const char* n = this->magicka.form->GetName();
+            if (n) result = n;
+        }
     } else if (this->stamina.type == Data::DATATYPE::POTION_AUTO_HIGHEST ||
                this->stamina.type == Data::DATATYPE::POTION_AUTO_LOWEST) {
-        if (this->stamina.form) result = this->stamina.form->GetName();
+        if (this->stamina.form) {
+            const char* n = this->stamina.form->GetName();
+            if (n) result = n;
+        }
     }
     return result;
 }

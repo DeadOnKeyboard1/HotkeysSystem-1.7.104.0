@@ -139,15 +139,21 @@ void InputHandler::Register() {
 }
 
 uint32_t InputHandler::GetImGuiKey(const uint32_t& _scanCode, RE::INPUT_DEVICE _device) {
-    uint32_t key = 0;
     if (_device == RE::INPUT_DEVICE::kKeyboard) {
-        key = keyMap[_scanCode];
-        if (key == 0) return ImGuiKey_None;
+        auto it = keyMap.find(_scanCode);
+        if (it != keyMap.end() && it->second != 0) {
+            return it->second;
+        }
+        return ImGuiKey_None;
     } else if (_device == RE::INPUT_DEVICE::kGamepad) {
-        key = padMap[_scanCode];
+        auto it = padMap.find(_scanCode);
+        if (it != padMap.end()) {
+            return it->second;
+        }
+        return ImGuiKey_None;
     }
 
-    return key;
+    return ImGuiKey_None;
 }
 
 InputHandler::EventResult InputHandler::ProcessEvent(RE::InputEvent* const* _event,

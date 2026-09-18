@@ -132,7 +132,7 @@ namespace {
     void InitializeD3DHooking() {
         logger::trace("Initializing trampoline...");
         auto& trampoline = GetTrampoline();
-        trampoline.create(28);
+        trampoline.create(64);
 
         D3DInitHook::post_init_callbacks.push_back(postInitCallback);
         write_thunk_call<D3DInitHook>();

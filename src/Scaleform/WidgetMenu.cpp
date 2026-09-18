@@ -37,7 +37,10 @@ namespace Scaleform {
     }
 
     void WidgetMenu::ProcessDelegate() {
-        WidgetHandler::GetSingleton()->ProcessWidgetMenu(*this);
+        auto handler = WidgetHandler::GetSingleton();
+        if (handler) {
+            handler->ProcessWidgetMenu(*this);
+        }
     }
 
     void WidgetMenu::OnOpen() {

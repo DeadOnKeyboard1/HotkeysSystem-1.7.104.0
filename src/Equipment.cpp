@@ -250,7 +250,8 @@ std::string GetWeaponWidgetName(bool _isLeft) {
     auto hand = player->GetEquippedObject(_isLeft);
     if (!hand) return result;
 
-    result = hand->GetName();
+    const char* handName = hand->GetName();
+    result = handName ? handName : "";
 
     return result;
 }
@@ -419,7 +420,8 @@ void EquipmentManager::NotifyWeapon(bool _isEquip, RE::TESForm* _weapon) {
             if (config->Widget.General.hudDiamondEnable && config->Widget.General.hudDiamondLeftEnable) {
                 this->lefthand.CreateWidgetBackground();
                 this->lefthand.CreateWidgetIcon();
-                widgetHandler->SetText(this->lefthand.widgetID.text1, _weapon->GetName());
+                const char* wName = _weapon->GetName();
+                widgetHandler->SetText(this->lefthand.widgetID.text1, wName ? wName : "");
             } else {
                 widgetHandler->UnloadText(this->lefthand.widgetID.text1);
             }
@@ -430,7 +432,8 @@ void EquipmentManager::NotifyWeapon(bool _isEquip, RE::TESForm* _weapon) {
             if (config->Widget.General.hudDiamondEnable) {
                 this->righthand.CreateWidgetBackground();
                 this->righthand.CreateWidgetIcon();
-                widgetHandler->SetText(this->righthand.widgetID.text1, _weapon->GetName());
+                const char* wName = _weapon->GetName();
+                widgetHandler->SetText(this->righthand.widgetID.text1, wName ? wName : "");
             } else {
                 widgetHandler->UnloadText(this->righthand.widgetID.text1);
             }
@@ -481,7 +484,8 @@ std::string GetShoutWidgetName() {
     auto shout = Actor::GetEquippedShout(player);
     if (!shout) return result;
 
-    result = shout->GetName();
+    const char* shoutName = shout->GetName();
+    result = shoutName ? shoutName : "";
 
     return result;
 }
@@ -592,7 +596,8 @@ void EquipmentManager::NotifyShout(bool _isEquip, RE::TESForm* _shout) {
             widgetHandler->UnloadWidget(this->shout.widgetID.icon);
             this->shout.CreateWidgetBackground();
             this->shout.CreateWidgetIcon();
-            widgetHandler->SetText(this->shout.widgetID.text1, _shout->GetName());
+            const char* sName = _shout->GetName();
+            widgetHandler->SetText(this->shout.widgetID.text1, sName ? sName : "");
         }
     } else {
         widgetHandler->UnloadWidget(this->shout.widgetID.background);

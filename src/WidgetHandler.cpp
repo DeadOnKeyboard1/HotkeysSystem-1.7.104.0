@@ -159,6 +159,10 @@ void WidgetHandler::StartExpireTimer() {
 
     if (expireProgress.load() != 0.0f && expireProgress.load() < config->Widget.General.animDelay) return;
 
+    if (expire_future.valid() && expire_future.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
+        return;
+    }
+
     expireProgress.store(0.01f);
     expire_future = std::async(std::launch::async, &WidgetHandler::ExpireFunc, this);
 }
@@ -173,9 +177,6 @@ bool WidgetHandler::ExpireFunc() {
     auto config = ConfigHandler::GetSingleton();
     if (!config) return true;
 
-    auto player = RE::PlayerCharacter::GetSingleton();
-    if (!player) return true;
-
     auto lastTime = std::chrono::steady_clock::now();
     while (!shouldCloseExpire.load() && expireProgress.load() < config->Widget.General.animDelay) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -183,8 +184,9 @@ bool WidgetHandler::ExpireFunc() {
         std::chrono::duration<float> elapsed = now - lastTime;
         lastTime = now;
 
+        auto player = RE::PlayerCharacter::GetSingleton();
         if (config->Widget.General.displayMode == (uint32_t)Config::DisplayType::INCOMBAT &&
-            player->IsInCombat()) {
+            player && player->IsInCombat()) {
             continue;
         }
         expireProgress.fetch_add(elapsed.count());
