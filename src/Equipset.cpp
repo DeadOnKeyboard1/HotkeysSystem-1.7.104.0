@@ -687,8 +687,8 @@ void Equipset::CreateWidgetIcon() {
             auto path = config->GetWidgetPath(equipset->widgetIcon.type);
             auto offsetX = equipset->widgetIcon.offsetX;
             auto offsetY = equipset->widgetIcon.offsetY;
-            auto width = static_cast<int32_t>((float)config->Widget.Equipset.Normal.widgetSize * resScale);
-            auto height = static_cast<int32_t>((float)config->Widget.Equipset.Normal.widgetSize * resScale);
+            auto width = static_cast<int32_t>(config->Widget.Equipset.Normal.GetContainedIconSize(resScale));
+            auto height = width;
 
             widgetHandler->LoadWidget(id, path, offsetX, offsetY, width, height, 100);
         }
@@ -701,8 +701,8 @@ void Equipset::CreateWidgetIcon() {
             auto path = config->GetWidgetPath(equipset->widgetIcon.type);
             auto offsetX = equipset->widgetIcon.offsetX;
             auto offsetY = equipset->widgetIcon.offsetY;
-            auto width = static_cast<int32_t>((float)config->Widget.Equipset.Potion.widgetSize * resScale);
-            auto height = static_cast<int32_t>((float)config->Widget.Equipset.Potion.widgetSize * resScale);
+            auto width = static_cast<int32_t>(config->Widget.Equipset.Potion.GetContainedIconSize(resScale));
+            auto height = width;
 
             widgetHandler->LoadWidget(id, path, offsetX, offsetY, width, height, 100);
         }
@@ -718,8 +718,8 @@ void Equipset::CreateWidgetIcon() {
             std::string path = "";
             auto offsetX = equipset->widgetIcon.offsetX;
             auto offsetY = equipset->widgetIcon.offsetY;
-            auto width = static_cast<int32_t>((float)config->Widget.Equipset.Cycle.widgetSize * resScale);
-            auto height = static_cast<int32_t>((float)config->Widget.Equipset.Cycle.widgetSize * resScale);
+            auto width = static_cast<int32_t>(config->Widget.Equipset.Cycle.GetContainedIconSize(resScale));
+            auto height = width;
 
             if (equipset->cycleIndex < equipset->items.size()) {
                 auto& name = equipset->items[equipset->cycleIndex];

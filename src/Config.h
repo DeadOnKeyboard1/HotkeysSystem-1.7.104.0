@@ -2,6 +2,8 @@
 
 #include <imgui.h>
 #include <unordered_map>
+#include <string>
+#include <cmath>
 
 namespace Config {
     enum class LangType {
@@ -71,6 +73,16 @@ public:
         int widgetSize{34};
         int fontSize{55};
         bool fontShadow{false};
+
+        float GetContainedIconSize(float resScale = 1.0f) const {
+            if (bgType == "_NONE" || bgAlpha <= 0) {
+                return (float)widgetSize * resScale;
+            }
+            float visualBg = 1.3f * (float)bgSize * resScale;
+            bool isDiamond = (bgType == "_BACKGROUND4" || bgType == "_BG_DRAGON" || bgType.find("DIAMOND") != std::string::npos);
+            float fillRatio = isDiamond ? 0.46f : 0.65f;
+            return std::round(visualBg * fillRatio);
+        }
     };
 
     struct WidgetEquipset {

@@ -723,8 +723,8 @@ void EquipmentBase::CreateWidgetIcon(bool _unequip) {
             std::string path = "";
             auto offsetX = armor->widgetIcon.offsetX;
             auto offsetY = armor->widgetIcon.offsetY;
-            auto width = static_cast<int32_t>((float)config->Widget.Equipment.Armor.widgetSize * resScale);
-            auto height = static_cast<int32_t>((float)config->Widget.Equipment.Armor.widgetSize * resScale);
+            auto width = static_cast<int32_t>(config->Widget.Equipment.Armor.GetContainedIconSize(resScale));
+            auto height = width;
 
             for (auto& elem : config->eq_widgetVec) {
                 if (elem.id == armor->slotid) {
@@ -749,8 +749,8 @@ void EquipmentBase::CreateWidgetIcon(bool _unequip) {
             auto path = GetWeaponWidgetPath(weapon->isLeft);
             auto offsetX = weapon->widgetIcon.offsetX;
             auto offsetY = weapon->widgetIcon.offsetY;
-            auto width = static_cast<int32_t>((float)config->Widget.Equipment.Weapon.widgetSize * resScale);
-            auto height = static_cast<int32_t>((float)config->Widget.Equipment.Weapon.widgetSize * resScale);
+            auto width = static_cast<int32_t>(config->Widget.Equipment.Weapon.GetContainedIconSize(resScale));
+            auto height = width;
 
             widgetHandler->LoadWidget(id, path, offsetX, offsetY, width, height, 100);
         }
@@ -767,8 +767,8 @@ void EquipmentBase::CreateWidgetIcon(bool _unequip) {
             auto path = GetShoutWidgetPath(_unequip);
             auto offsetX = shout->widgetIcon.offsetX;
             auto offsetY = shout->widgetIcon.offsetY;
-            auto width = static_cast<int32_t>((float)config->Widget.Equipment.Shout.widgetSize * resScale);
-            auto height = static_cast<int32_t>((float)config->Widget.Equipment.Shout.widgetSize * resScale);
+            auto width = static_cast<int32_t>(config->Widget.Equipment.Shout.GetContainedIconSize(resScale));
+            auto height = width;
 
             widgetHandler->LoadWidget(id, path, offsetX, offsetY, width, height, 100);
         }
@@ -809,7 +809,7 @@ void EquipmentBase::CreateWidgetText1() {
             auto text = GetArmorWidgetName(armor->slotid);
             auto font = getFont(config);
 
-            float iconW = (float)config->Widget.Equipment.Armor.widgetSize * resScale;
+            float iconW = config->Widget.Equipment.Armor.GetContainedIconSize(resScale);
             float bgW = (config->Widget.Equipment.Armor.bgType != "_NONE" && config->Widget.Equipment.Armor.bgAlpha > 0) ?
                         (1.3f * (float)config->Widget.Equipment.Armor.bgSize * resScale) : 0.0f;
             float visualW = std::max(iconW, bgW);
@@ -994,7 +994,7 @@ void EquipmentManager::AutoArrangeArmorSlots() {
     });
 
     float resScale = config->Widget.General.autoResolutionScale ? Utility::GetResolutionScale() : 1.0f;
-    float iconH = (float)config->Widget.Equipment.Armor.widgetSize * resScale;
+    float iconH = config->Widget.Equipment.Armor.GetContainedIconSize(resScale);
     float bgH = (config->Widget.Equipment.Armor.bgType != "_NONE" && config->Widget.Equipment.Armor.bgAlpha > 0) ?
                 (1.3f * (float)config->Widget.Equipment.Armor.bgSize * resScale) : 0.0f;
     float visualIconH = std::max(iconH, bgH);

@@ -72,36 +72,13 @@ void ConfigHandler::LoadConfig() {
         this->Widget.Equipment.Shout.fontShadow = tbl["Widget"]["shout_font_shadow"].value_or<bool>(true);
 
         // Auto-migrate oversized icons or legacy unoptimized sizes
-        if (this->Widget.Equipment.Armor.bgSize >= 100 && this->Widget.Equipment.Armor.widgetSize >= 100) {
-            this->Widget.Equipment.Armor.bgSize = 24;
-            this->Widget.Equipment.Armor.widgetSize = 20;
-            this->Widget.Equipment.Armor.fontSize = 50;
-        }
-        if (this->Widget.Equipment.Weapon.widgetSize > 26 || this->Widget.Equipment.Weapon.bgSize < 50) {
-            this->Widget.Equipment.Weapon.bgSize = 63;
-            this->Widget.Equipment.Weapon.widgetSize = 24;
-            this->Widget.Equipment.Weapon.fontSize = 55;
-        }
-        if (this->Widget.Equipment.Shout.widgetSize > 26 || this->Widget.Equipment.Shout.bgSize < 50) {
-            this->Widget.Equipment.Shout.bgSize = 63;
-            this->Widget.Equipment.Shout.widgetSize = 24;
-            this->Widget.Equipment.Shout.fontSize = 55;
-        }
-        if (this->Widget.Equipset.Normal.widgetSize > 26 || this->Widget.Equipset.Normal.bgSize < 50) {
-            this->Widget.Equipset.Normal.bgSize = 63;
-            this->Widget.Equipset.Normal.widgetSize = 24;
-            this->Widget.Equipset.Normal.fontSize = 55;
-        }
-        if (this->Widget.Equipset.Potion.widgetSize > 26 || this->Widget.Equipset.Potion.bgSize < 50) {
-            this->Widget.Equipset.Potion.bgSize = 63;
-            this->Widget.Equipset.Potion.widgetSize = 24;
-            this->Widget.Equipset.Potion.fontSize = 55;
-        }
-        if (this->Widget.Equipset.Cycle.widgetSize > 26 || this->Widget.Equipset.Cycle.bgSize < 50) {
-            this->Widget.Equipset.Cycle.bgSize = 63;
-            this->Widget.Equipset.Cycle.widgetSize = 24;
-            this->Widget.Equipset.Cycle.fontSize = 55;
-        }
+        if (this->Widget.Equipment.Armor.bgSize < 10) this->Widget.Equipment.Armor.bgSize = 24;
+        if (this->Widget.Equipment.Armor.widgetSize < 10) this->Widget.Equipment.Armor.widgetSize = 20;
+        if (this->Widget.Equipment.Weapon.bgSize < 20) this->Widget.Equipment.Weapon.bgSize = 63;
+        if (this->Widget.Equipment.Shout.bgSize < 20) this->Widget.Equipment.Shout.bgSize = 63;
+        if (this->Widget.Equipset.Normal.bgSize < 20) this->Widget.Equipset.Normal.bgSize = 63;
+        if (this->Widget.Equipset.Potion.bgSize < 20) this->Widget.Equipset.Potion.bgSize = 63;
+        if (this->Widget.Equipset.Cycle.bgSize < 20) this->Widget.Equipset.Cycle.bgSize = 63;
 
         const auto modifier1 = tbl["Settings"]["modifier1"].value_or<uint32_t>(ImGuiKey_ModCtrl);
         if (std::ranges::contains(Utility::acceptableKeys(), modifier1)) {
