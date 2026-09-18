@@ -438,7 +438,7 @@ void GuiMenu::DrawEquipment() {
     bool shouldReload = false;
     auto Reload = [&shouldReload]() { shouldReload = true; };
 
-    auto DrawWidgetIconSection = [ts, Reload](WidgetIcon* _widget, int* _size = nullptr, int* _bgSize = nullptr) {
+    auto DrawWidgetIconSection = [ts, Reload, equipment, config](WidgetIcon* _widget, int* _size = nullptr, int* _bgSize = nullptr) {
         if (ImGui::Checkbox(C_TRANSLATE("_WIDGET_ENABLE"), &_widget->enable)) {
             Reload();
         }
@@ -447,6 +447,15 @@ void GuiMenu::DrawEquipment() {
                                 ImGuiSliderFlags_AlwaysClamp)) {
                 if (_bgSize && *_bgSize > 0) {
                     *_bgSize = static_cast<int>(std::round((float)(*_size) * 2.625f));
+                }
+                if (_size == &config->Widget.Equipment.Armor.widgetSize) {
+                    if (config->Widget.General.hudArmorAutoStack) {
+                        equipment->AutoArrangeArmorSlots();
+                        equipment->Save();
+                    }
+                } else if (_size == &config->Widget.Equipment.Weapon.widgetSize || _size == &config->Widget.Equipment.Shout.widgetSize) {
+                    equipment->AutoArrangeDiamondCluster();
+                    equipment->Save();
                 }
                 Reload();
             }
@@ -460,7 +469,7 @@ void GuiMenu::DrawEquipment() {
             Reload();
         }
     };
-    auto DrawWidgetTextSection = [ts, Reload](WidgetText* _widget, int* _fontSize = nullptr) {
+    auto DrawWidgetTextSection = [ts, Reload, equipment, config](WidgetText* _widget, int* _fontSize = nullptr) {
         std::vector<std::string> align_items = {TRANSLATE("_ALIGN_LEFT"), TRANSLATE("_ALIGN_RIGHT"),
                                                 TRANSLATE("_ALIGN_CENTER")};
 
@@ -470,6 +479,15 @@ void GuiMenu::DrawEquipment() {
         if (_fontSize) {
             if (Draw::SliderInt(C_TRANSLATE("_FONT_SIZE"), _fontSize, 0, 200, "%d%%",
                                 ImGuiSliderFlags_AlwaysClamp)) {
+                if (_fontSize == &config->Widget.Equipment.Armor.fontSize) {
+                    if (config->Widget.General.hudArmorAutoStack) {
+                        equipment->AutoArrangeArmorSlots();
+                        equipment->Save();
+                    }
+                } else if (_fontSize == &config->Widget.Equipment.Weapon.fontSize || _fontSize == &config->Widget.Equipment.Shout.fontSize) {
+                    equipment->AutoArrangeDiamondCluster();
+                    equipment->Save();
+                }
                 Reload();
             }
         }
@@ -514,6 +532,11 @@ void GuiMenu::DrawEquipment() {
     auto autoScaleLabel = TRANSLATE("_WIDGET_AUTO_SCALE");
     if (autoScaleLabel == "_WIDGET_AUTO_SCALE") autoScaleLabel = "Auto-Scale with Screen Resolution";
     if (ImGui::Checkbox(autoScaleLabel.c_str(), &config->Widget.General.autoResolutionScale)) {
+        if (config->Widget.General.hudArmorAutoStack) {
+            equipment->AutoArrangeArmorSlots();
+        }
+        equipment->AutoArrangeDiamondCluster();
+        equipment->Save();
         Reload();
     }
 
@@ -555,10 +578,18 @@ void GuiMenu::DrawEquipment() {
         ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
         if (Draw::SliderInt(C_TRANSLATE("_WIDGET_SIZE"), &config->Widget.Equipment.Armor.widgetSize, 0, 200, "%d%%",
                             ImGuiSliderFlags_AlwaysClamp)) {
+            if (config->Widget.General.hudArmorAutoStack) {
+                equipment->AutoArrangeArmorSlots();
+                equipment->Save();
+            }
             Reload();
         }
         if (Draw::SliderInt(C_TRANSLATE("_FONT_SIZE"), &config->Widget.Equipment.Armor.fontSize, 0, 200, "%d%%",
                             ImGuiSliderFlags_AlwaysClamp)) {
+            if (config->Widget.General.hudArmorAutoStack) {
+                equipment->AutoArrangeArmorSlots();
+                equipment->Save();
+            }
             Reload();
         }
         ImGui::PopItemWidth();
@@ -802,27 +833,62 @@ void GuiMenu::DrawConfig() {
     auto ts = Translator::GetSingleton();
     if (!ts) return;
 
+    auto equipment = EquipmentManager::GetSingleton();
+    if (!equipment) return;
+
     bool shouldReload = false;
     auto Reload = [&shouldReload]() { shouldReload = true; };
 
-    auto DrawWidgetSection = [ts, Reload](ConfigHandler::WidgetBase* _widget) {
+    auto DrawWidgetSection = [ts, Reload, equipment, config](ConfigHandler::WidgetBase* _widget) {
         if (Draw::ComboBackground(&_widget->bgType, C_TRANSLATE("_BACKGROUND_TYPE"))) {
+            if (_widget == &config->Widget.Equipment.Armor && config->Widget.General.hudArmorAutoStack) {
+                equipment->AutoArrangeArmorSlots();
+                equipment->Save();
+            } else if (_widget == &config->Widget.Equipment.Weapon || _widget == &config->Widget.Equipment.Shout) {
+                equipment->AutoArrangeDiamondCluster();
+                equipment->Save();
+            }
             Reload();
         }
         if (Draw::SliderInt(C_TRANSLATE("_BACKGROUND_SIZE"), &_widget->bgSize, 0, 200, "%d%%",
                             ImGuiSliderFlags_AlwaysClamp)) {
+            if (_widget == &config->Widget.Equipment.Armor && config->Widget.General.hudArmorAutoStack) {
+                equipment->AutoArrangeArmorSlots();
+                equipment->Save();
+            } else if (_widget == &config->Widget.Equipment.Weapon || _widget == &config->Widget.Equipment.Shout) {
+                equipment->AutoArrangeDiamondCluster();
+                equipment->Save();
+            }
             Reload();
         }
         if (Draw::SliderInt(C_TRANSLATE("_BACKGROUND_ALPHA"), &_widget->bgAlpha, 0, 100, "%d%%",
                             ImGuiSliderFlags_AlwaysClamp)) {
+            if (_widget == &config->Widget.Equipment.Armor && config->Widget.General.hudArmorAutoStack) {
+                equipment->AutoArrangeArmorSlots();
+                equipment->Save();
+            }
             Reload();
         }
         if (Draw::SliderInt(C_TRANSLATE("_WIDGET_SIZE"), &_widget->widgetSize, 0, 200, "%d%%",
                             ImGuiSliderFlags_AlwaysClamp)) {
+            if (_widget == &config->Widget.Equipment.Armor && config->Widget.General.hudArmorAutoStack) {
+                equipment->AutoArrangeArmorSlots();
+                equipment->Save();
+            } else if (_widget == &config->Widget.Equipment.Weapon || _widget == &config->Widget.Equipment.Shout) {
+                equipment->AutoArrangeDiamondCluster();
+                equipment->Save();
+            }
             Reload();
         }
         if (Draw::SliderInt(C_TRANSLATE("_FONT_SIZE"), &_widget->fontSize, 0, 200, "%d%%",
                             ImGuiSliderFlags_AlwaysClamp)) {
+            if (_widget == &config->Widget.Equipment.Armor && config->Widget.General.hudArmorAutoStack) {
+                equipment->AutoArrangeArmorSlots();
+                equipment->Save();
+            } else if (_widget == &config->Widget.Equipment.Weapon || _widget == &config->Widget.Equipment.Shout) {
+                equipment->AutoArrangeDiamondCluster();
+                equipment->Save();
+            }
             Reload();
         }
         if (ImGui::Checkbox(C_TRANSLATE("_FONT_SHADOW"), &_widget->fontShadow)) {
@@ -898,6 +964,11 @@ void GuiMenu::DrawConfig() {
                             config->Widget.Equipset.Normal.bgType = diamondBg;
                             config->Widget.Equipset.Potion.bgType = diamondBg;
                             config->Widget.Equipset.Cycle.bgType = diamondBg;
+                            if (config->Widget.General.hudArmorAutoStack) {
+                                equipment->AutoArrangeArmorSlots();
+                            }
+                            equipment->AutoArrangeDiamondCluster();
+                            equipment->Save();
                             Reload();
                         };
 
@@ -979,6 +1050,10 @@ void GuiMenu::DrawConfig() {
                     auto autoStackLabel = TRANSLATE("_WIDGET_HUD_ARMOR_AUTO_STACK");
                     if (autoStackLabel == "_WIDGET_HUD_ARMOR_AUTO_STACK") autoStackLabel = "Auto-Arrange Armor Stack (Multi-Column)";
                     if (ImGui::Checkbox(autoStackLabel.c_str(), &config->Widget.General.hudArmorAutoStack)) {
+                        if (config->Widget.General.hudArmorAutoStack) {
+                            equipment->AutoArrangeArmorSlots();
+                            equipment->Save();
+                        }
                         Reload();
                     }
 
@@ -991,6 +1066,11 @@ void GuiMenu::DrawConfig() {
                     auto autoScaleLabel = TRANSLATE("_WIDGET_AUTO_SCALE");
                     if (autoScaleLabel == "_WIDGET_AUTO_SCALE") autoScaleLabel = "Auto-Scale with Screen Resolution";
                     if (ImGui::Checkbox(autoScaleLabel.c_str(), &config->Widget.General.autoResolutionScale)) {
+                        if (config->Widget.General.hudArmorAutoStack) {
+                            equipment->AutoArrangeArmorSlots();
+                        }
+                        equipment->AutoArrangeDiamondCluster();
+                        equipment->Save();
                         Reload();
                     }
 

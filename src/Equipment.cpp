@@ -974,11 +974,26 @@ void EquipmentManager::AutoArrangeArmorSlots() {
         return GetSlotPriority(a) < GetSlotPriority(b);
     });
 
+    float resScale = config->Widget.General.autoResolutionScale ? Utility::GetResolutionScale() : 1.0f;
+    float iconH = (float)config->Widget.Equipment.Armor.widgetSize * resScale;
+    float bgH = (config->Widget.Equipment.Armor.bgType != "_NONE" && config->Widget.Equipment.Armor.bgAlpha > 0) ?
+                (1.3f * (float)config->Widget.Equipment.Armor.bgSize * resScale) : 0.0f;
+    float visualIconH = std::max(iconH, bgH);
+    float textH = 0.25f * (float)config->Widget.Equipment.Armor.fontSize * resScale;
+    float slotH = std::max(visualIconH, textH);
+
+    // Dynamic vertical step: icon height plus breathing gap (never overlap at ANY scale)
+    float gap = std::max(8.0f * resScale, slotH * 0.25f);
+    int32_t stepY = static_cast<int32_t>(std::ceil(slotH + gap));
+
+    // Dynamic horizontal text offset: from icon center to beyond icon right edge plus padding
+    float textGap = std::max(10.0f * resScale, visualIconH * 0.20f);
+    int32_t nameOffsetX = static_cast<int32_t>(std::ceil((visualIconH * 0.5f) + textGap));
+
     const int32_t baseX = this->armorStackBaseX;
     const int32_t baseY = this->armorStackBaseY;
-    const int32_t stepY = 32;
     const int32_t minY = 60;          // Never go above screen top edge
-    const int32_t columnWidth = 230;  // Clean horizontal spacing to next column
+    const int32_t columnWidth = static_cast<int32_t>(std::max(240.0f * resScale, visualIconH + 220.0f * resScale));
 
     int32_t currentX = baseX;
     int32_t currentY = baseY;
@@ -994,49 +1009,78 @@ void EquipmentManager::AutoArrangeArmorSlots() {
         this->armor[idx].widgetIcon.offsetY = currentY;
 
         this->armor[idx].widgetName.align = WidgetText::ALIGN_TYPE::LEFT;
-        this->armor[idx].widgetName.offsetX = 22;
+        this->armor[idx].widgetName.offsetX = nameOffsetX;
         this->armor[idx].widgetName.offsetY = 0;
 
         currentY -= stepY;
     }
 }
 
+void EquipmentManager::AutoArrangeDiamondCluster() {
+    auto config = ConfigHandler::GetSingleton();
+    if (!config) return;
+
+    int32_t centerX = (this->lefthand.widgetIcon.offsetX + this->righthand.widgetIcon.offsetX) / 2;
+    int32_t centerY = this->lefthand.widgetIcon.offsetY;
+
+    if (centerX <= 0 || centerY <= 0) {
+        float stageW = Utility::GetStageWidth();
+        float stageH = Utility::GetStageHeight();
+        centerX = static_cast<int32_t>(stageW - 180.0f);
+        centerY = static_cast<int32_t>(stageH - 140.0f);
+    }
+
+    float resScale = config->Widget.General.autoResolutionScale ? Utility::GetResolutionScale() : 1.0f;
+    float weaponIcon = (float)config->Widget.Equipment.Weapon.widgetSize * resScale;
+    float shoutIcon = (float)config->Widget.Equipment.Shout.widgetSize * resScale;
+    float weaponBg = (config->Widget.Equipment.Weapon.bgType != "_NONE" && config->Widget.Equipment.Weapon.bgAlpha > 0) ?
+                     (1.3f * (float)config->Widget.Equipment.Weapon.bgSize * resScale) : 0.0f;
+    float shoutBg = (config->Widget.Equipment.Shout.bgType != "_NONE" && config->Widget.Equipment.Shout.bgAlpha > 0) ?
+                    (1.3f * (float)config->Widget.Equipment.Shout.bgSize * resScale) : 0.0f;
+
+    float maxVisual = std::max({weaponIcon, shoutIcon, weaponBg, shoutBg});
+    int32_t radius = std::max(40, static_cast<int32_t>(std::ceil(maxVisual * 0.85f)));
+
+    this->shout.widgetIcon.offsetX = centerX;
+    this->shout.widgetIcon.offsetY = centerY - radius;
+    this->shout.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
+    this->shout.widgetName.offsetX = 0;
+    this->shout.widgetName.offsetY = -static_cast<int32_t>(std::ceil((radius * 0.35f) + (shoutIcon * 0.5f) + 10.0f * resScale));
+
+    this->lefthand.widgetIcon.offsetX = centerX - radius;
+    this->lefthand.widgetIcon.offsetY = centerY;
+    this->lefthand.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
+    this->lefthand.widgetName.offsetX = -static_cast<int32_t>(std::ceil(radius * 0.30f));
+    this->lefthand.widgetName.offsetY = static_cast<int32_t>(std::ceil((radius * 0.35f) + (weaponIcon * 0.5f) + 8.0f * resScale));
+
+    this->righthand.widgetIcon.offsetX = centerX + radius;
+    this->righthand.widgetIcon.offsetY = centerY;
+    this->righthand.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
+    this->righthand.widgetName.offsetX = static_cast<int32_t>(std::ceil(radius * 0.30f));
+    this->righthand.widgetName.offsetY = static_cast<int32_t>(std::ceil((radius * 0.35f) + (weaponIcon * 0.5f) + 26.0f * resScale));
+}
+
 void EquipmentManager::ResetToDefaults() {
     float stageW = Utility::GetStageWidth();
     float stageH = Utility::GetStageHeight();
 
-    // Center anchor for the 4-diamond HUD cluster in the bottom right:
     int32_t base_X = static_cast<int32_t>(stageW - 180.0f);
     int32_t base_Y = static_cast<int32_t>(stageH - 140.0f);
 
-    // Shout (Top slot):
     this->shout.widgetIcon.enable = true;
-    this->shout.widgetIcon.offsetX = base_X;
-    this->shout.widgetIcon.offsetY = base_Y - 40;
     this->shout.widgetName.enable = true;
-    this->shout.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
-    this->shout.widgetName.offsetX = 0;
-    this->shout.widgetName.offsetY = -52;
-
-    // Lefthand (Left slot):
     this->lefthand.widgetIcon.enable = true;
-    this->lefthand.widgetIcon.offsetX = base_X - 40;
-    this->lefthand.widgetIcon.offsetY = base_Y;
     this->lefthand.widgetName.enable = true;
-    this->lefthand.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
-    this->lefthand.widgetName.offsetX = -20;
-    this->lefthand.widgetName.offsetY = 46;
-
-    // Righthand (Right slot):
     this->righthand.widgetIcon.enable = true;
-    this->righthand.widgetIcon.offsetX = base_X + 40;
-    this->righthand.widgetIcon.offsetY = base_Y;
     this->righthand.widgetName.enable = true;
-    this->righthand.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
-    this->righthand.widgetName.offsetX = 20;
-    this->righthand.widgetName.offsetY = 68;
 
-    // Setup Armor default layout on the left side (compact vertical stack):
+    this->shout.widgetIcon.offsetX = base_X;
+    this->lefthand.widgetIcon.offsetY = base_Y;
+    this->righthand.widgetIcon.offsetX = base_X + 40;
+    this->lefthand.widgetIcon.offsetX = base_X - 40;
+    AutoArrangeDiamondCluster();
+
+    // Setup Armor default layout on the left side:
     this->armorStackBaseX = 35;
     this->armorStackBaseY = 466;
     for (int i = 0; i < 32; i++) {

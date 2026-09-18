@@ -55,6 +55,7 @@ public:
     void Save();
     void ResetToDefaults();
     void AutoArrangeArmorSlots();
+    void AutoArrangeDiamondCluster();
 
 public:
     static EquipmentManager* GetSingleton() {
