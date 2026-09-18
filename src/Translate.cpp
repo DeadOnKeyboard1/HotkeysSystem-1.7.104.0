@@ -11,6 +11,7 @@ void Translator::Load() {
         std::filesystem::path file_path;
 
         auto Config = ConfigHandler::GetSingleton();
+        if (!Config) return;
         switch (Config->Gui.language) {
             case (int)Config::LangType::CHINESE:
                 file_path = "Data/SKSE/Plugins/UIHS/Translate/Translate_chinese.toml";
@@ -74,5 +75,9 @@ void Translator::Load() {
         logger::info("Translation loaded.");
     } catch (const toml::parse_error& err) {
         logger::warn("Failed to parse translation file.\nError: {}", err.description());
+    } catch (const std::exception& e) {
+        logger::warn("Exception in Translator::Load: {}", e.what());
+    } catch (...) {
+        logger::warn("Unknown exception in Translator::Load.");
     }
 }

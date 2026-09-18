@@ -971,48 +971,44 @@ void Equipset::SyncWidget() {
 
 static RE::TESForm* GetMinMaxPotion(bool _isMax, bool _calcDuration, const std::vector<RE::AlchemyItem*>& _potion,
                                     const std::vector<float>& _magnitude, const std::vector<uint32_t>& _duration) {
-    RE::TESForm* result = nullptr;
+    if (_potion.empty() || _potion.size() != _magnitude.size()) {
+        return nullptr;
+    }
 
-    float max = 0.0f;
-    int max_index = -1;
-    float min = 10000.0f;
-    int min_index = -1;
-    if (_calcDuration) {
-        for (int i = 0; i < _potion.size(); i++) {
-            auto magnitude = _magnitude[i];
-            auto duration = _duration[i] == 0U ? 1U : _duration[i];
-            auto value = magnitude * duration;
+    int selected_index = -1;
+    float best_value = 0.0f;
 
-            if (value > max) {
-                max = value;
-                max_index = i;
-            }
-            if (value < min) {
-                min = value;
-                min_index = i;
-            }
+    for (size_t i = 0; i < _potion.size(); ++i) {
+        if (!_potion[i]) continue;
+
+        float magnitude = _magnitude[i];
+        float val = magnitude;
+        if (_calcDuration) {
+            uint32_t dur = (i < _duration.size() && _duration[i] > 0U) ? _duration[i] : 1U;
+            val = magnitude * static_cast<float>(dur);
         }
-    } else {
-        for (int i = 0; i < _potion.size(); i++) {
-            if (_magnitude[i] > max) {
-                max = _magnitude[i];
-                max_index = i;
+
+        if (selected_index == -1) {
+            best_value = val;
+            selected_index = static_cast<int>(i);
+        } else if (_isMax) {
+            if (val > best_value) {
+                best_value = val;
+                selected_index = static_cast<int>(i);
             }
-            if (_magnitude[i] < min) {
-                min = _magnitude[i];
-                min_index = i;
+        } else {
+            if (val < best_value) {
+                best_value = val;
+                selected_index = static_cast<int>(i);
             }
         }
     }
-    if (_isMax && max_index != -1) {
-        auto form = _potion[max_index]->As<RE::TESForm>();
-        if (form) result = form;
-    } else if (!_isMax && min_index != -1) {
-        auto form = _potion[min_index]->As<RE::TESForm>();
-        if (form) result = form;
+
+    if (selected_index >= 0 && static_cast<size_t>(selected_index) < _potion.size() && _potion[selected_index]) {
+        return _potion[selected_index]->As<RE::TESForm>();
     }
 
-    return result;
+    return nullptr;
 }
 
 void PotionSet::AssignAutoPotion() {
@@ -1038,13 +1034,14 @@ void PotionSet::AssignAutoPotion() {
     auto inv = player->GetInventory();
     for (const auto& [item, data] : inv) {
         const auto& [numItem, entry] = data;
-        if (numItem > 0 && item->Is(RE::FormType::AlchemyItem)) {
+        if (numItem > 0 && item && item->Is(RE::FormType::AlchemyItem)) {
             auto potion = item->As<RE::AlchemyItem>();
             if (!potion) continue;
 
             for (auto effect : potion->effects) {
+                if (!effect) continue;
                 auto baseEffect = effect->baseEffect;
-                if (!baseEffect) break;
+                if (!baseEffect) continue;
 
                 bool isHealth = false;
                 bool isMagicka = false;

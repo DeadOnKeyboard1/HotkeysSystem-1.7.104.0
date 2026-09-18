@@ -90,11 +90,13 @@ namespace Scaleform {
 
                 std::va_list args;
                 va_copy(args, a_argList);
-                std::vector<char> buf(static_cast<std::size_t>(std::vsnprintf(0, 0, fmt.c_str(), a_argList) + 1));
-                std::vsnprintf(buf.data(), buf.size(), fmt.c_str(), args);
+                int len = std::vsnprintf(nullptr, 0, fmt.c_str(), a_argList);
+                if (len >= 0) {
+                    std::vector<char> buf(static_cast<std::size_t>(len + 1));
+                    std::vsnprintf(buf.data(), buf.size(), fmt.c_str(), args);
+                    logger::info("{}: {}"sv, WidgetMenu::MenuName(), buf.data());
+                }
                 va_end(args);
-
-                logger::info("{}: {}"sv, WidgetMenu::MenuName(), buf.data());
             }
         };
 

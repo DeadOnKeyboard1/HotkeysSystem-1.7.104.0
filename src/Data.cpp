@@ -628,7 +628,7 @@ void DataHandler::InitPotion() {
         uint32_t foundType = 0;
         for (auto effect : potion->effects) {
             auto baseEffect = effect ? effect->baseEffect : nullptr;
-            if (!baseEffect) break;
+            if (!baseEffect) continue;
 
             auto formid = baseEffect->GetFormID();
             for (const auto& elem : config->healthVec) {
@@ -664,7 +664,7 @@ void DataHandler::InitPotion() {
         if (foundType == 0) {
             for (auto effect : potion->effects) {
                 auto baseEffect = effect ? effect->baseEffect : nullptr;
-                if (!baseEffect) break;
+                if (!baseEffect) continue;
 
                 auto av = baseEffect->data.primaryAV;
                 auto arch = baseEffect->GetArchetype();

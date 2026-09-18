@@ -13,12 +13,13 @@ public:
     
     void Load();
 
-    std::string Translate(const std::string& _msg) {
-        if (map[_msg].length() == 0) {
-            return _msg;
+    std::string Translate(const std::string& _msg) const {
+        auto it = map.find(_msg);
+        if (it != map.end() && !it->second.empty()) {
+            return it->second;
         }
 
-        return map[_msg];
+        return _msg;
     }
 
 public:

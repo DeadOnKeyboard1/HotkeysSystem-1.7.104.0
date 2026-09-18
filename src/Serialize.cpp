@@ -46,132 +46,142 @@ namespace Serialize {
     const std::filesystem::path equipset_path = "Data/SKSE/Plugins/UIHS/Equipset.toml";
 
     bool ExportEquipset(Type _type, SKSE::SerializationInterface* serde) {
-        auto manager = EquipsetManager::GetSingleton();
-        if (!manager) return false;
+        try {
+            auto manager = EquipsetManager::GetSingleton();
+            if (!manager) return false;
 
-        if (_type == Type::SAVE && !serde) return false;
+            if (_type == Type::SAVE && !serde) return false;
 
-        const auto& equipsetVec = manager->equipsetVec;
+            const auto& equipsetVec = manager->equipsetVec;
 
-        auto mainTbl = toml::table{
-            {"Init",
-             toml::table{
-                 {"equipset_count", (uint32_t)equipsetVec.size()},
-             }},
-        };
+            auto mainTbl = toml::table{
+                {"Init",
+                 toml::table{
+                     {"equipset_count", (uint32_t)equipsetVec.size()},
+                 }},
+            };
 
-        for (int i = 0; i < equipsetVec.size(); i++) {
-            if (equipsetVec[i]->type == Equipset::TYPE::NORMAL) {
-                auto equipset = static_cast<NormalSet*>(equipsetVec[i]);
+            for (int i = 0; i < equipsetVec.size(); i++) {
+                if (!equipsetVec[i]) continue;
 
-                toml::array itemsArr;
-                for (auto item : equipset->items) {
-                    itemsArr.push_back(item.Pack());
+                if (equipsetVec[i]->type == Equipset::TYPE::NORMAL) {
+                    auto equipset = static_cast<NormalSet*>(equipsetVec[i]);
+
+                    toml::array itemsArr;
+                    for (auto item : equipset->items) {
+                        itemsArr.push_back(item.Pack());
+                    }
+
+                    auto tbl = toml::table{
+                        {"equipset_type", static_cast<uint32_t>(equipset->type)},
+                        {"equipset_name", equipset->name},
+                        {"equipset_hotkey", equipset->hotkey},
+                        {"equipset_modifier1", equipset->modifier1},
+                        {"equipset_modifier2", equipset->modifier2},
+                        {"equipset_modifier3", equipset->modifier3},
+                        {"equipset_order", equipset->order},
+                        {"equipset_equipSound", equipset->equipSound},
+                        {"equipset_toggleEquip", equipset->toggleEquip},
+                        {"equipset_reEquip", equipset->reEquip},
+                        {"equipset_widgetIcon", equipset->widgetIcon.Pack()},
+                        {"equipset_widgetName", equipset->widgetName.Pack()},
+                        {"equipset_widgetHotkey", equipset->widgetHotkey.Pack()},
+                        {"equipset_lefthand", equipset->lefthand.Pack()},
+                        {"equipset_righthand", equipset->righthand.Pack()},
+                        {"equipset_shout", equipset->shout.Pack()},
+                        {"equipset_itemsCount", (uint32_t)equipset->items.size()},
+                        {"equipset_itemsArr", itemsArr},
+                    };
+
+                    mainTbl.insert(std::to_string(i), tbl);
+
+                } else if (equipsetVec[i]->type == Equipset::TYPE::POTION) {
+                    auto equipset = static_cast<PotionSet*>(equipsetVec[i]);
+
+                    toml::array itemsArr;
+                    for (auto item : equipset->items) {
+                        itemsArr.push_back(item.Pack());
+                    }
+
+                    auto tbl = toml::table{
+                        {"equipset_type", static_cast<uint32_t>(equipset->type)},
+                        {"equipset_name", equipset->name},
+                        {"equipset_hotkey", equipset->hotkey},
+                        {"equipset_modifier1", equipset->modifier1},
+                        {"equipset_modifier2", equipset->modifier2},
+                        {"equipset_modifier3", equipset->modifier3},
+                        {"equipset_order", equipset->order},
+                        {"equipset_equipSound", equipset->equipSound},
+                        {"equipset_calcDuration", equipset->calcDuration},
+                        {"equipset_widgetIcon", equipset->widgetIcon.Pack()},
+                        {"equipset_widgetName", equipset->widgetName.Pack()},
+                        {"equipset_widgetAmount", equipset->widgetAmount.Pack()},
+                        {"equipset_health", equipset->health.Pack()},
+                        {"equipset_magicka", equipset->magicka.Pack()},
+                        {"equipset_stamina", equipset->stamina.Pack()},
+                        {"equipset_itemsCount", (uint32_t)equipset->items.size()},
+                        {"equipset_itemsArr", itemsArr},
+                    };
+
+                    mainTbl.insert(std::to_string(i), tbl);
+
+                } else if (equipsetVec[i]->type == Equipset::TYPE::CYCLE) {
+                    auto equipset = static_cast<CycleSet*>(equipsetVec[i]);
+
+                    toml::array itemsArr;
+                    for (auto item : equipset->items) {
+                        itemsArr.push_back(item);
+                    }
+
+                    auto tbl = toml::table{
+                        {"equipset_type", static_cast<uint32_t>(equipset->type)},
+                        {"equipset_name", equipset->name},
+                        {"equipset_hotkey", equipset->hotkey},
+                        {"equipset_modifier1", equipset->modifier1},
+                        {"equipset_modifier2", equipset->modifier2},
+                        {"equipset_modifier3", equipset->modifier3},
+                        {"equipset_order", equipset->order},
+                        {"equipset_cyclePersist", equipset->cyclePersist},
+                        {"equipset_cycleExpire", equipset->cycleExpire},
+                        {"equipset_cycleReset", equipset->cycleReset},
+                        {"equipset_widgetIcon", equipset->widgetIcon.Pack()},
+                        {"equipset_widgetName", equipset->widgetName.Pack()},
+                        {"equipset_widgetHotkey", equipset->widgetHotkey.Pack()},
+                        {"equipset_itemsCount", (uint32_t)equipset->items.size()},
+                        {"equipset_itemsArr", itemsArr},
+                    };
+
+                    if (_type == Type::SAVE) {
+                        tbl.insert("equipset_cycleIndex", equipset->cycleIndex);
+                        tbl.insert("equipset_isCycleInit", equipset->isCycleInit);
+                    }
+
+                    mainTbl.insert(std::to_string(i), tbl);
                 }
-
-                auto tbl = toml::table{
-                    {"equipset_type", static_cast<uint32_t>(equipset->type)},
-                    {"equipset_name", equipset->name},
-                    {"equipset_hotkey", equipset->hotkey},
-                    {"equipset_modifier1", equipset->modifier1},
-                    {"equipset_modifier2", equipset->modifier2},
-                    {"equipset_modifier3", equipset->modifier3},
-                    {"equipset_order", equipset->order},
-                    {"equipset_equipSound", equipset->equipSound},
-                    {"equipset_toggleEquip", equipset->toggleEquip},
-                    {"equipset_reEquip", equipset->reEquip},
-                    {"equipset_widgetIcon", equipset->widgetIcon.Pack()},
-                    {"equipset_widgetName", equipset->widgetName.Pack()},
-                    {"equipset_widgetHotkey", equipset->widgetHotkey.Pack()},
-                    {"equipset_lefthand", equipset->lefthand.Pack()},
-                    {"equipset_righthand", equipset->righthand.Pack()},
-                    {"equipset_shout", equipset->shout.Pack()},
-                    {"equipset_itemsCount", (uint32_t)equipset->items.size()},
-                    {"equipset_itemsArr", itemsArr},
-                };
-
-                mainTbl.insert(std::to_string(i), tbl);
-
-            } else if (equipsetVec[i]->type == Equipset::TYPE::POTION) {
-                auto equipset = static_cast<PotionSet*>(equipsetVec[i]);
-
-                toml::array itemsArr;
-                for (auto item : equipset->items) {
-                    itemsArr.push_back(item.Pack());
-                }
-
-                auto tbl = toml::table{
-                    {"equipset_type", static_cast<uint32_t>(equipset->type)},
-                    {"equipset_name", equipset->name},
-                    {"equipset_hotkey", equipset->hotkey},
-                    {"equipset_modifier1", equipset->modifier1},
-                    {"equipset_modifier2", equipset->modifier2},
-                    {"equipset_modifier3", equipset->modifier3},
-                    {"equipset_order", equipset->order},
-                    {"equipset_equipSound", equipset->equipSound},
-                    {"equipset_calcDuration", equipset->calcDuration},
-                    {"equipset_widgetIcon", equipset->widgetIcon.Pack()},
-                    {"equipset_widgetName", equipset->widgetName.Pack()},
-                    {"equipset_widgetAmount", equipset->widgetAmount.Pack()},
-                    {"equipset_health", equipset->health.Pack()},
-                    {"equipset_magicka", equipset->magicka.Pack()},
-                    {"equipset_stamina", equipset->stamina.Pack()},
-                    {"equipset_itemsCount", (uint32_t)equipset->items.size()},
-                    {"equipset_itemsArr", itemsArr},
-                };
-
-                mainTbl.insert(std::to_string(i), tbl);
-
-            } else if (equipsetVec[i]->type == Equipset::TYPE::CYCLE) {
-                auto equipset = static_cast<CycleSet*>(equipsetVec[i]);
-
-                toml::array itemsArr;
-                for (auto item : equipset->items) {
-                    itemsArr.push_back(item);
-                }
-
-                auto tbl = toml::table{
-                    {"equipset_type", static_cast<uint32_t>(equipset->type)},
-                    {"equipset_name", equipset->name},
-                    {"equipset_hotkey", equipset->hotkey},
-                    {"equipset_modifier1", equipset->modifier1},
-                    {"equipset_modifier2", equipset->modifier2},
-                    {"equipset_modifier3", equipset->modifier3},
-                    {"equipset_order", equipset->order},
-                    {"equipset_cyclePersist", equipset->cyclePersist},
-                    {"equipset_cycleExpire", equipset->cycleExpire},
-                    {"equipset_cycleReset", equipset->cycleReset},
-                    {"equipset_widgetIcon", equipset->widgetIcon.Pack()},
-                    {"equipset_widgetName", equipset->widgetName.Pack()},
-                    {"equipset_widgetHotkey", equipset->widgetHotkey.Pack()},
-                    {"equipset_itemsCount", (uint32_t)equipset->items.size()},
-                    {"equipset_itemsArr", itemsArr},
-                };
-
-                if (_type == Type::SAVE) {
-                    tbl.insert("equipset_cycleIndex", equipset->cycleIndex);
-                    tbl.insert("equipset_isCycleInit", equipset->isCycleInit);
-                }
-
-                mainTbl.insert(std::to_string(i), tbl);
-            }
-        }
-
-        if (_type == Type::FILE) {
-            std::ofstream f(equipset_path);
-            if (!f.is_open()) {
-                logger::error("Failed to export Equipset!");
-                return false;
             }
 
-            f << mainTbl;
-        } else if (_type == Type::SAVE) {
-            std::stringstream f;
-            f << mainTbl;
-            WriteString(serde, f.str());
-        }
+            if (_type == Type::FILE) {
+                std::ofstream f(equipset_path);
+                if (!f.is_open()) {
+                    logger::error("Failed to export Equipset!");
+                    return false;
+                }
 
-        return true;
+                f << mainTbl;
+            } else if (_type == Type::SAVE) {
+                std::stringstream f;
+                f << mainTbl;
+                WriteString(serde, f.str());
+            }
+
+            return true;
+        } catch (const std::exception& e) {
+            logger::error("Exception in ExportEquipset: {}", e.what());
+            return false;
+        } catch (...) {
+            logger::error("Unknown exception in ExportEquipset.");
+            return false;
+        }
     }
 
     bool ImportEquipset(Type _type, SKSE::SerializationInterface* serde) {
@@ -336,7 +346,12 @@ namespace Serialize {
             logger::info("Equipset loaded.");
         } catch (const toml::parse_error& err) {
             logger::warn("Failed to parse Equipset file.\nError: {}", err.description());
-
+            return false;
+        } catch (const std::exception& err) {
+            logger::warn("Exception while importing Equipset: {}", err.what());
+            return false;
+        } catch (...) {
+            logger::warn("Unknown exception while importing Equipset.");
             return false;
         }
 

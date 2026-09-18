@@ -173,14 +173,18 @@ namespace {
                 case MessagingInterface::kDataLoaded: // All ESM/ESL/ESP plugins have loaded, main menu is now active.
                     // It is now safe to access form data.
                    
-                    GuiMenu::GetSingleton()->NotifyFontReload();
+                    if (auto guiMenu = GuiMenu::GetSingleton()) {
+                        guiMenu->NotifyFontReload();
+                    }
                     InputHandler::Register();
                     HUDHandler::Register();
                     EquipHandler::Register();
                     CombatHandler::Register();
                     ContainerHandler::Register();
                     Scaleform::Register();
-                    Translator::GetSingleton()->Load();
+                    if (auto trans = Translator::GetSingleton()) {
+                        trans->Load();
+                    }
                     break;
 
                 // Skyrim game events.

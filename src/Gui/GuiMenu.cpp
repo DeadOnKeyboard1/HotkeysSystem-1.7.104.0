@@ -566,7 +566,8 @@ void GuiMenu::DrawEquipment() {
         static std::vector<ImVec2> groupSize(32, ImVec2(0.0f, 0.0f));
         static std::vector<ImVec2> groupLeftSize(32, ImVec2(0.0f, 0.0f));
         static std::vector<ImVec2> groupRightSize(32, ImVec2(0.0f, 0.0f));
-        for (int i = 0; i < 32; i++) {
+        int maxArmorSlots = std::min(32, static_cast<int>(equipment->armor.size()));
+        for (int i = 0; i < maxArmorSlots; i++) {
             auto desc = GetSlotDescription(i + 30);
             auto treeName = desc.empty() ? fmt::format("Slot{}", i + 30) : fmt::format("Slot{} ({})", i + 30, desc);
             if (ImGui::TreeNode(treeName.c_str())) {
