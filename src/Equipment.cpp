@@ -808,7 +808,19 @@ void EquipmentBase::CreateWidgetText1() {
             auto id = armor->widgetID.text1;
             auto text = GetArmorWidgetName(armor->slotid);
             auto font = getFont(config);
-            auto offsetX = armor->widgetName.offsetX + armor->widgetIcon.offsetX;
+
+            float iconW = (float)config->Widget.Equipment.Armor.widgetSize * resScale;
+            float bgW = (config->Widget.Equipment.Armor.bgType != "_NONE" && config->Widget.Equipment.Armor.bgAlpha > 0) ?
+                        (1.3f * (float)config->Widget.Equipment.Armor.bgSize * resScale) : 0.0f;
+            float visualW = std::max(iconW, bgW);
+            int32_t minSafeOffsetX = static_cast<int32_t>(std::ceil((visualW * 0.5f) + std::max(12.0f * resScale, 14.0f)));
+
+            int32_t finalOffsetX = armor->widgetName.offsetX;
+            if (config->Widget.General.hudArmorAutoStack || finalOffsetX < minSafeOffsetX) {
+                finalOffsetX = minSafeOffsetX;
+            }
+
+            auto offsetX = finalOffsetX + armor->widgetIcon.offsetX;
             auto offsetY = armor->widgetName.offsetY + armor->widgetIcon.offsetY;
             auto align = static_cast<uint32_t>(armor->widgetName.align);
             auto size = static_cast<int32_t>(0.25f * (float)config->Widget.Equipment.Armor.fontSize * resScale);
@@ -986,9 +998,9 @@ void EquipmentManager::AutoArrangeArmorSlots() {
     float gap = std::max(8.0f * resScale, slotH * 0.25f);
     int32_t stepY = static_cast<int32_t>(std::ceil(slotH + gap));
 
-    // Dynamic horizontal text offset: from icon center to beyond icon right edge plus padding
-    float textGap = std::max(10.0f * resScale, visualIconH * 0.20f);
-    int32_t nameOffsetX = static_cast<int32_t>(std::ceil((visualIconH * 0.5f) + textGap));
+    // Dynamic horizontal text offset: from icon/box center to beyond right edge of the box plus padding
+    float textPadding = std::max(12.0f * resScale, 14.0f);
+    int32_t nameOffsetX = static_cast<int32_t>(std::ceil((visualIconH * 0.5f) + textPadding));
 
     const int32_t baseX = this->armorStackBaseX;
     const int32_t baseY = this->armorStackBaseY;
@@ -1061,6 +1073,50 @@ void EquipmentManager::AutoArrangeDiamondCluster() {
 }
 
 void EquipmentManager::ResetToDefaults() {
+    auto config = ConfigHandler::GetSingleton();
+    if (config) {
+        config->Widget.Equipment.Armor.bgType = "_NONE";
+        config->Widget.Equipment.Armor.bgAlpha = 0;
+        config->Widget.Equipment.Armor.bgSize = 40;
+        config->Widget.Equipment.Armor.widgetSize = 20;
+        config->Widget.Equipment.Armor.fontSize = 80;
+        config->Widget.Equipment.Armor.fontShadow = true;
+
+        config->Widget.Equipment.Weapon.bgType = "_NONE";
+        config->Widget.Equipment.Weapon.bgAlpha = 0;
+        config->Widget.Equipment.Weapon.bgSize = 40;
+        config->Widget.Equipment.Weapon.widgetSize = 24;
+        config->Widget.Equipment.Weapon.fontSize = 80;
+        config->Widget.Equipment.Weapon.fontShadow = true;
+
+        config->Widget.Equipment.Shout.bgType = "_NONE";
+        config->Widget.Equipment.Shout.bgAlpha = 0;
+        config->Widget.Equipment.Shout.bgSize = 40;
+        config->Widget.Equipment.Shout.widgetSize = 24;
+        config->Widget.Equipment.Shout.fontSize = 80;
+        config->Widget.Equipment.Shout.fontShadow = true;
+
+        config->Widget.Equipset.Normal.bgType = "_NONE";
+        config->Widget.Equipset.Normal.bgAlpha = 0;
+        config->Widget.Equipset.Normal.widgetSize = 24;
+
+        config->Widget.Equipset.Potion.bgType = "_NONE";
+        config->Widget.Equipset.Potion.bgAlpha = 0;
+        config->Widget.Equipset.Potion.widgetSize = 24;
+
+        config->Widget.Equipset.Cycle.bgType = "_NONE";
+        config->Widget.Equipset.Cycle.bgAlpha = 0;
+        config->Widget.Equipset.Cycle.widgetSize = 24;
+
+        config->Widget.General.hudDiamondEnable = true;
+        config->Widget.General.hudDiamondLeftEnable = true;
+        config->Widget.General.hudArmorEnable = true;
+        config->Widget.General.hudArmorAutoStack = true;
+        config->Widget.General.showEmptySlots = false;
+        config->Widget.General.autoResolutionScale = true;
+        config->SaveConfig();
+    }
+
     float stageW = Utility::GetStageWidth();
     float stageH = Utility::GetStageHeight();
 
@@ -1089,7 +1145,7 @@ void EquipmentManager::ResetToDefaults() {
         this->armor[i].widgetIcon.offsetY = 0;
         this->armor[i].widgetName.enable = false;
         this->armor[i].widgetName.align = WidgetText::ALIGN_TYPE::LEFT;
-        this->armor[i].widgetName.offsetX = 22;
+        this->armor[i].widgetName.offsetX = 28;
         this->armor[i].widgetName.offsetY = 0;
     }
 

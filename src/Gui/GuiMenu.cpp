@@ -115,9 +115,46 @@ void GuiMenu::DrawMain() {
     if (font) ImGui::PushFont(font);
     auto& style = ImGui::GetStyle();
     switch (static_cast<Config::GuiStyle>(config->Gui.style)) {
-        case Config::GuiStyle::DARK:
+        case Config::GuiStyle::DARK: {
             ImGui::StyleColorsDark();
+            auto& colors = style.Colors;
+            // Modern high-contrast dark theme with elegant Skyrim slate/blue accents
+            colors[ImGuiCol_WindowBg] = ImVec4(0.08f, 0.09f, 0.12f, 0.96f);
+            colors[ImGuiCol_ChildBg] = ImVec4(0.10f, 0.12f, 0.16f, 0.70f);
+            colors[ImGuiCol_PopupBg] = ImVec4(0.10f, 0.12f, 0.16f, 0.98f);
+            colors[ImGuiCol_Border] = ImVec4(0.20f, 0.25f, 0.32f, 0.65f);
+            colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+            colors[ImGuiCol_FrameBg] = ImVec4(0.14f, 0.17f, 0.23f, 0.85f);
+            colors[ImGuiCol_FrameBgHovered] = ImVec4(0.20f, 0.26f, 0.36f, 0.90f);
+            colors[ImGuiCol_FrameBgActive] = ImVec4(0.25f, 0.33f, 0.46f, 1.00f);
+            colors[ImGuiCol_TitleBg] = ImVec4(0.08f, 0.10f, 0.14f, 1.00f);
+            colors[ImGuiCol_TitleBgActive] = ImVec4(0.12f, 0.16f, 0.22f, 1.00f);
+            colors[ImGuiCol_MenuBarBg] = ImVec4(0.10f, 0.12f, 0.16f, 1.00f);
+            colors[ImGuiCol_ScrollbarBg] = ImVec4(0.08f, 0.09f, 0.12f, 0.60f);
+            colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.22f, 0.28f, 0.38f, 0.80f);
+            colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.30f, 0.38f, 0.50f, 0.90f);
+            colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.38f, 0.48f, 0.64f, 1.00f);
+            colors[ImGuiCol_CheckMark] = ImVec4(0.38f, 0.68f, 1.00f, 1.00f);
+            colors[ImGuiCol_SliderGrab] = ImVec4(0.32f, 0.58f, 0.92f, 0.90f);
+            colors[ImGuiCol_SliderGrabActive] = ImVec4(0.45f, 0.72f, 1.00f, 1.00f);
+            colors[ImGuiCol_Button] = ImVec4(0.16f, 0.21f, 0.29f, 0.85f);
+            colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.32f, 0.44f, 0.95f);
+            colors[ImGuiCol_ButtonActive] = ImVec4(0.30f, 0.40f, 0.56f, 1.00f);
+            colors[ImGuiCol_Header] = ImVec4(0.18f, 0.24f, 0.33f, 0.80f);
+            colors[ImGuiCol_HeaderHovered] = ImVec4(0.25f, 0.34f, 0.47f, 0.90f);
+            colors[ImGuiCol_HeaderActive] = ImVec4(0.32f, 0.43f, 0.60f, 1.00f);
+            colors[ImGuiCol_Separator] = ImVec4(0.20f, 0.25f, 0.32f, 0.70f);
+            colors[ImGuiCol_SeparatorHovered] = ImVec4(0.30f, 0.40f, 0.55f, 0.85f);
+            colors[ImGuiCol_SeparatorActive] = ImVec4(0.40f, 0.55f, 0.75f, 1.00f);
+            colors[ImGuiCol_Tab] = ImVec4(0.12f, 0.15f, 0.21f, 0.90f);
+            colors[ImGuiCol_TabHovered] = ImVec4(0.24f, 0.32f, 0.45f, 0.95f);
+            colors[ImGuiCol_TabActive] = ImVec4(0.20f, 0.28f, 0.40f, 1.00f);
+            colors[ImGuiCol_TabUnfocused] = ImVec4(0.10f, 0.13f, 0.18f, 0.85f);
+            colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.16f, 0.22f, 0.31f, 0.95f);
+            colors[ImGuiCol_Text] = ImVec4(0.93f, 0.95f, 0.97f, 1.00f);
+            colors[ImGuiCol_TextDisabled] = ImVec4(0.55f, 0.60f, 0.68f, 1.00f);
             break;
+        }
         case Config::GuiStyle::LIGHT:
             ImGui::StyleColorsLight();
             break;
@@ -125,12 +162,16 @@ void GuiMenu::DrawMain() {
             ImGui::StyleColorsClassic();
             break;
     }
-    style.WindowRounding = config->Gui.rounding;
-    style.ChildRounding = config->Gui.rounding;
-    style.FrameRounding = config->Gui.rounding;
-    style.PopupRounding = config->Gui.rounding;
-    style.ScrollbarRounding = config->Gui.rounding;
-    style.GrabRounding = config->Gui.rounding;
+    style.WindowRounding = std::max(style.WindowRounding, 6.0f);
+    style.ChildRounding = std::max(style.ChildRounding, 4.0f);
+    style.FrameRounding = std::max(style.FrameRounding, 4.0f);
+    style.PopupRounding = std::max(style.PopupRounding, 5.0f);
+    style.ScrollbarRounding = std::max(style.ScrollbarRounding, 6.0f);
+    style.GrabRounding = std::max(style.GrabRounding, 4.0f);
+    style.TabRounding = 4.0f;
+    style.FramePadding = ImVec2(8.0f, 5.0f);
+    style.ItemSpacing = ImVec2(8.0f, 6.0f);
+    style.ItemInnerSpacing = ImVec2(6.0f, 4.0f);
     style.WindowBorderSize = config->Gui.windowBorder ? 1.0f : 0.0f;
     style.FrameBorderSize = config->Gui.frameBorder ? 1.0f : 0.0f;
     style.ScaleAllSizes(config->Gui.fontScaling);
@@ -146,7 +187,9 @@ void GuiMenu::DrawMain() {
     if (!viewport) return;
 
     ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Once);
-    ImGui::SetNextWindowSize({viewport->Size.x / 3, viewport->Size.y}, ImGuiCond_Once);
+    float desiredWidth = std::max(560.0f, viewport->Size.x / 3.0f);
+    ImGui::SetNextWindowSize({desiredWidth, viewport->Size.y}, ImGuiCond_Once);
+    ImGui::SetNextWindowSizeConstraints(ImVec2(540.0f, 600.0f), ImVec2(viewport->Size.x, viewport->Size.y));
     if (ImGui::Begin(fmt::format("UI-Integrated Hotkeys System {}",
                                  SKSE::PluginDeclaration::GetSingleton()->GetVersion().string())
                          .c_str(),
@@ -445,9 +488,6 @@ void GuiMenu::DrawEquipment() {
         if (_size) {
             if (Draw::SliderInt(C_TRANSLATE("_WIDGET_SIZE"), _size, 0, 200, "%d%%",
                                 ImGuiSliderFlags_AlwaysClamp)) {
-                if (_bgSize && *_bgSize > 0) {
-                    *_bgSize = static_cast<int>(std::round((float)(*_size) * 2.625f));
-                }
                 if (_size == &config->Widget.Equipment.Armor.widgetSize) {
                     if (config->Widget.General.hudArmorAutoStack) {
                         equipment->AutoArrangeArmorSlots();
@@ -540,12 +580,18 @@ void GuiMenu::DrawEquipment() {
         Reload();
     }
 
-    auto resetLabel = TRANSLATE("_RESET_DEFAULTS");
-    if (resetLabel == "_RESET_DEFAULTS") resetLabel = "Reset to Bottom-Right Defaults";
-    if (ImGui::Button(resetLabel.c_str())) {
+    auto resetLabel = fmt::format("{}  {}", ICON_FA_UNDO, TRANSLATE("_RESET_DEFAULTS"));
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.45f, 0.16f, 0.16f, 0.85f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.60f, 0.22f, 0.22f, 0.95f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.72f, 0.26f, 0.26f, 1.00f));
+    if (ImGui::Button(resetLabel.c_str(), ImVec2(-FLT_MIN, 32.0f))) {
         equipment->ResetToDefaults();
         equipment->Save();
         Reload();
+    }
+    ImGui::PopStyleColor(3);
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetTooltip("%s", TRANSLATE("_RESET_DEFAULTS_TIP").c_str());
     }
 
     auto dragDropLabel = TRANSLATE("_WIDGET_DRAG_DROP");
@@ -935,7 +981,7 @@ void GuiMenu::DrawConfig() {
 
                     // Theme Preset Selector
                     std::vector<std::string> themePresets = {
-                        TRANSLATE("_THEME_PRESET_SELECT"),
+                        TRANSLATE("_THEME_PRESET_STANDARD"),
                         TRANSLATE("_THEME_PRESET_NORDIC"),
                         TRANSLATE("_THEME_PRESET_CELTIC"),
                         TRANSLATE("_THEME_PRESET_MINIMAL"),
@@ -951,28 +997,77 @@ void GuiMenu::DrawConfig() {
                         TRANSLATE("_THEME_PRESET_DUNMER"),
                         TRANSLATE("_THEME_PRESET_NIGHTINGALE"),
                         TRANSLATE("_THEME_PRESET_CLASSIC_DIAMOND"),
-                        TRANSLATE("_THEME_PRESET_CLASSIC_SQUARE"),
-                        TRANSLATE("_THEME_PRESET_NONE")
+                        TRANSLATE("_THEME_PRESET_CLASSIC_SQUARE")
                     };
-                    static uint32_t currentThemePreset = 0;
-                    if (Draw::Combo(themePresets, &currentThemePreset, C_TRANSLATE("_THEME_PRESET_LABEL"))) {
-                        auto ApplyTheme = [&](const std::string& diamondBg, const std::string& squareBg, uint32_t armorAlpha = 100) {
+                    static int currentThemePreset = -1;
+                    if (config->Widget.Equipment.Armor.bgType == "_NONE" || config->Widget.Equipment.Armor.bgAlpha == 0) {
+                        currentThemePreset = 0;
+                    } else if (currentThemePreset == -1) {
+                        if (config->Widget.Equipment.Armor.bgType == "_BG_NORDIC_SQUARE") currentThemePreset = 1;
+                        else if (config->Widget.Equipment.Armor.bgType == "_BG_CELTIC_SQUARE") currentThemePreset = 2;
+                        else if (config->Widget.Equipment.Armor.bgType == "_BG_MINIMAL_SQUARE") currentThemePreset = 3;
+                        else if (config->Widget.Equipment.Armor.bgType == "_BG_COMPASS") currentThemePreset = 4;
+                        else if (config->Widget.Equipment.Armor.bgType == "_BG_ARCANE_CIRCLE") currentThemePreset = 5;
+                        else if (config->Widget.Equipment.Armor.bgType == "_BG_GOTHIC_SQUARE") currentThemePreset = 6;
+                        else if (config->Widget.Equipment.Weapon.bgType == "_BG_DRAGON") currentThemePreset = 7;
+                        else if (config->Widget.Equipment.Armor.bgType == "_BG_OBLIVION_CIRCLE") currentThemePreset = 8;
+                        else if (config->Widget.Equipment.Armor.bgType == "_BG_FALMER_SQUARE") currentThemePreset = 9;
+                        else if (config->Widget.Equipment.Armor.bgType == "_BG_SNOWELF_SQUARE") currentThemePreset = 10;
+                        else if (config->Widget.Equipment.Armor.bgType == "_BG_HIGHELF_SQUARE") currentThemePreset = 11;
+                        else if (config->Widget.Equipment.Armor.bgType == "_BG_DWEMER_SQUARE") currentThemePreset = 12;
+                        else if (config->Widget.Equipment.Armor.bgType == "_BG_DUNMER_SQUARE") currentThemePreset = 13;
+                        else if (config->Widget.Equipment.Armor.bgType == "_BG_NIGHTINGALE_SQUARE") currentThemePreset = 14;
+                        else if (config->Widget.Equipment.Weapon.bgType == "_BACKGROUND4") currentThemePreset = 15;
+                        else if (config->Widget.Equipment.Weapon.bgType == "_BACKGROUND2") currentThemePreset = 16;
+                        else currentThemePreset = 0;
+                    }
+                    uint32_t selectedPreset = static_cast<uint32_t>(std::max(0, currentThemePreset));
+                    if (Draw::Combo(themePresets, &selectedPreset, C_TRANSLATE("_THEME_PRESET_LABEL"))) {
+                        currentThemePreset = static_cast<int>(selectedPreset);
+                        auto ApplyTheme = [&](const std::string& diamondBg, const std::string& squareBg, uint32_t armorAlpha = 100, int weaponSize = 34, int armorSize = 32, int weaponBgSize = 42, int armorBgSize = 40) {
                             config->Widget.Equipment.Weapon.bgType = diamondBg;
+                            config->Widget.Equipment.Weapon.bgAlpha = armorAlpha;
+                            config->Widget.Equipment.Weapon.bgSize = weaponBgSize;
+                            config->Widget.Equipment.Weapon.widgetSize = weaponSize;
+
                             config->Widget.Equipment.Shout.bgType = diamondBg;
+                            config->Widget.Equipment.Shout.bgAlpha = armorAlpha;
+                            config->Widget.Equipment.Shout.bgSize = weaponBgSize;
+                            config->Widget.Equipment.Shout.widgetSize = weaponSize;
+
                             config->Widget.Equipment.Armor.bgType = squareBg;
                             config->Widget.Equipment.Armor.bgAlpha = armorAlpha;
+                            config->Widget.Equipment.Armor.bgSize = armorBgSize;
+                            config->Widget.Equipment.Armor.widgetSize = armorSize;
+
                             config->Widget.Equipset.Normal.bgType = diamondBg;
+                            config->Widget.Equipset.Normal.bgAlpha = armorAlpha;
+                            config->Widget.Equipset.Normal.bgSize = weaponBgSize;
+                            config->Widget.Equipset.Normal.widgetSize = weaponSize;
+
                             config->Widget.Equipset.Potion.bgType = diamondBg;
+                            config->Widget.Equipset.Potion.bgAlpha = armorAlpha;
+                            config->Widget.Equipset.Potion.bgSize = weaponBgSize;
+                            config->Widget.Equipset.Potion.widgetSize = weaponSize;
+
                             config->Widget.Equipset.Cycle.bgType = diamondBg;
+                            config->Widget.Equipset.Cycle.bgAlpha = armorAlpha;
+                            config->Widget.Equipset.Cycle.bgSize = weaponBgSize;
+                            config->Widget.Equipset.Cycle.widgetSize = weaponSize;
+
                             if (config->Widget.General.hudArmorAutoStack) {
                                 equipment->AutoArrangeArmorSlots();
                             }
                             equipment->AutoArrangeDiamondCluster();
                             equipment->Save();
+                            config->SaveConfig();
                             Reload();
                         };
 
-                        switch (currentThemePreset) {
+                        switch (selectedPreset) {
+                            case 0:
+                                ApplyTheme("_NONE", "_NONE", 0, 24, 20, 40, 40);
+                                break;
                             case 1:
                                 ApplyTheme("_BG_NORDIC_DIAMOND", "_BG_NORDIC_SQUARE");
                                 break;
@@ -1020,9 +1115,6 @@ void GuiMenu::DrawConfig() {
                                 break;
                             case 16:
                                 ApplyTheme("_BACKGROUND2", "_BACKGROUND2");
-                                break;
-                            case 17:
-                                ApplyTheme("_NONE", "_NONE", 0);
                                 break;
                             default:
                                 break;
