@@ -6,6 +6,8 @@
 #include "Data.h"
 #include "Draw.h"
 #include "GuiMenu.h"
+#include "Equipment.h"
+#include "Utility.h"
 
 #include <imgui.h>
 #include "extern/imgui_impl_dx11.h"
@@ -76,6 +78,33 @@ namespace Shared::Potion {
 
         auto config = ConfigHandler::GetSingleton();
         if (!config) return;
+
+        auto snapLabel = fmt::format("{}  {}", ICON_FA_COMPASS, TRANSLATE("_SNAP_DIAMOND"));
+        if (snapLabel.find("_SNAP_DIAMOND") != std::string::npos) snapLabel = fmt::format("{}  Snap to Diamond HUD (Bottom Slot)", ICON_FA_COMPASS);
+        if (ImGui::Button(snapLabel.c_str(), ImVec2(-FLT_MIN, 0.0f))) {
+            auto equipment = EquipmentManager::GetSingleton();
+            if (equipment) {
+                int32_t centerX = (equipment->lefthand.widgetIcon.offsetX + equipment->righthand.widgetIcon.offsetX) / 2;
+                int32_t centerY = equipment->lefthand.widgetIcon.offsetY;
+                if (centerX <= 0 || centerY <= 0) {
+                    float stageW = Utility::GetStageWidth();
+                    float stageH = Utility::GetStageHeight();
+                    centerX = static_cast<int32_t>(stageW - 180.0f);
+                    centerY = static_cast<int32_t>(stageH - 140.0f);
+                }
+                float resScale = config->Widget.General.autoResolutionScale ? Utility::GetResolutionScale() : 1.0f;
+                float weaponBg = (config->Widget.Equipment.Weapon.bgType != "_NONE" && config->Widget.Equipment.Weapon.bgAlpha > 0) ? (float)config->Widget.Equipment.Weapon.bgSize : 63.0f;
+                int32_t radius = std::max(36, static_cast<int32_t>(std::round(40.0f * (weaponBg / 63.0f) * resScale)));
+
+                *_icon_offsetX = centerX;
+                *_icon_offsetY = centerY + radius;
+                *_name_offsetX = 0;
+                *_name_offsetY = radius + static_cast<int32_t>(std::round(6.0f * resScale));
+                *_amount_offsetX = 0;
+                *_amount_offsetY = 0;
+            }
+        }
+        ImGui::Separator();
 
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::TreeNode(C_TRANSLATE("_WIDGET_ICON"))) {
@@ -320,19 +349,41 @@ namespace Create::Potion {
             modifier3 = false;
             equipSound = true;
             calcDuration = false;
-            icon_enable = false;
-            icon_type = "_NONE";
-            icon_offsetX = 0;
-            icon_offsetY = 0;
-            name_enable = false;
+            auto equipment = EquipmentManager::GetSingleton();
+            int32_t centerX = 0, centerY = 0;
+            if (equipment) {
+                centerX = (equipment->lefthand.widgetIcon.offsetX + equipment->righthand.widgetIcon.offsetX) / 2;
+                centerY = equipment->lefthand.widgetIcon.offsetY;
+            }
+            if (centerX <= 0 || centerY <= 0) {
+                float stageW = Utility::GetStageWidth();
+                float stageH = Utility::GetStageHeight();
+                centerX = static_cast<int32_t>(stageW - 180.0f);
+                centerY = static_cast<int32_t>(stageH - 140.0f);
+            }
+            float resScale = config->Widget.General.autoResolutionScale ? Utility::GetResolutionScale() : 1.0f;
+            float weaponBg = (config->Widget.Equipment.Weapon.bgType != "_NONE" && config->Widget.Equipment.Weapon.bgAlpha > 0) ? (float)config->Widget.Equipment.Weapon.bgSize : 63.0f;
+            int32_t radius = std::max(36, static_cast<int32_t>(std::round(40.0f * (weaponBg / 63.0f) * resScale)));
+
+            icon_enable = true;
+            icon_type = "_POTION_HEALTH";
+            icon_offsetX = centerX;
+            icon_offsetY = centerY + radius;
+            name_enable = true;
             name_align_type = WidgetText::ALIGN_TYPE::CENTER;
             name_offsetX = 0;
-            name_offsetY = 0;
-            amount_enable = false;
+            name_offsetY = radius + static_cast<int32_t>(std::round(6.0f * resScale));
+            amount_enable = true;
             amount_align_type = WidgetText::ALIGN_TYPE::CENTER;
             amount_offsetX = 0;
             amount_offsetY = 0;
-            health = DataPotion();
+
+            auto dataHandler = DataHandler::GetSingleton();
+            if (dataHandler && !dataHandler->potion_health.empty()) {
+                health = dataHandler->potion_health[0];
+            } else {
+                health = DataPotion();
+            }
             magicka = DataPotion();
             stamina = DataPotion();
             potion.clear();

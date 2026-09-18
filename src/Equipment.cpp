@@ -1100,6 +1100,28 @@ void EquipmentManager::AutoArrangeDiamondCluster() {
     this->righthand.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
     this->righthand.widgetName.offsetX = static_cast<int32_t>(std::round(20.0f * resScale));
     this->righthand.widgetName.offsetY = radius + static_cast<int32_t>(std::round(28.0f * resScale));
+
+    auto equipsetManager = EquipsetManager::GetSingleton();
+    if (equipsetManager) {
+        for (auto equipset : equipsetManager->equipsetVec) {
+            if (equipset && equipset->type == Equipset::TYPE::POTION) {
+                auto pot = static_cast<PotionSet*>(equipset);
+                if (pot && pot->widgetIcon.enable) {
+                    pot->widgetIcon.offsetX = centerX;
+                    pot->widgetIcon.offsetY = centerY + radius;
+                    pot->widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
+                    pot->widgetName.offsetX = 0;
+                    pot->widgetName.offsetY = radius + static_cast<int32_t>(std::round(6.0f * resScale));
+                    pot->widgetAmount.align = WidgetText::ALIGN_TYPE::CENTER;
+                    pot->widgetAmount.offsetX = 0;
+                    pot->widgetAmount.offsetY = 0;
+                    pot->CreateWidget();
+                    equipsetManager->ExportEquipsets();
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void EquipmentManager::ResetToDefaults() {
@@ -1169,23 +1191,12 @@ void EquipmentManager::ResetToDefaults() {
     this->righthand.widgetIcon.enable = true;
     this->righthand.widgetName.enable = true;
 
-    this->shout.widgetIcon.offsetX = base_X;
-    this->shout.widgetIcon.offsetY = base_Y - 40;
-    this->shout.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
-    this->shout.widgetName.offsetX = 0;
-    this->shout.widgetName.offsetY = -52;
-
     this->lefthand.widgetIcon.offsetX = base_X - 40;
     this->lefthand.widgetIcon.offsetY = base_Y;
-    this->lefthand.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
-    this->lefthand.widgetName.offsetX = -20;
-    this->lefthand.widgetName.offsetY = 46;
-
     this->righthand.widgetIcon.offsetX = base_X + 40;
     this->righthand.widgetIcon.offsetY = base_Y;
-    this->righthand.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
-    this->righthand.widgetName.offsetX = 20;
-    this->righthand.widgetName.offsetY = 68;
+
+    AutoArrangeDiamondCluster();
 
     // Setup Armor default layout on the left side:
     this->armorStackBaseX = 35;

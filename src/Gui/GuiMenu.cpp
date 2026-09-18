@@ -289,7 +289,7 @@ void GuiMenu::DrawMain() {
                         drawHelper->NotifyReload(true);
                         ImGui::OpenPopup(C_TRANSLATE("_SELECT_NEW_OPEN_NORMAL"));
                     }
-                    ImGui::SetNextWindowSize({viewport->Size.x / 3, viewport->Size.y / 5 * 3}, ImGuiCond_Once);
+                    ImGui::SetNextWindowSize({std::max(640.0f, viewport->Size.x * 0.42f), std::min(viewport->Size.y * 0.88f, 780.0f)}, ImGuiCond_Appearing);
                     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
                     if (ImGui::BeginPopupModal(C_TRANSLATE("_SELECT_NEW_OPEN_NORMAL"), NULL)) {
                         shouldClose = Draw::CreateNormal();
@@ -300,7 +300,7 @@ void GuiMenu::DrawMain() {
                         drawHelper->NotifyReload(true);
                         ImGui::OpenPopup(C_TRANSLATE("_SELECT_NEW_OPEN_POTION"));
                     }
-                    ImGui::SetNextWindowSize({viewport->Size.x / 3, viewport->Size.y / 5 * 3}, ImGuiCond_Once);
+                    ImGui::SetNextWindowSize({std::max(640.0f, viewport->Size.x * 0.42f), std::min(viewport->Size.y * 0.88f, 780.0f)}, ImGuiCond_Appearing);
                     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
                     if (ImGui::BeginPopupModal(C_TRANSLATE("_SELECT_NEW_OPEN_POTION"), NULL)) {
                         shouldClose = Draw::CreatePotion();
@@ -311,7 +311,7 @@ void GuiMenu::DrawMain() {
                         drawHelper->NotifyReload(true);
                         ImGui::OpenPopup(C_TRANSLATE("_SELECT_NEW_OPEN_CYCLE"));
                     }
-                    ImGui::SetNextWindowSize({viewport->Size.x / 3, viewport->Size.y / 5 * 3}, ImGuiCond_Once);
+                    ImGui::SetNextWindowSize({std::max(640.0f, viewport->Size.x * 0.42f), std::min(viewport->Size.y * 0.88f, 780.0f)}, ImGuiCond_Appearing);
                     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
                     if (ImGui::BeginPopupModal(C_TRANSLATE("_SELECT_NEW_OPEN_CYCLE"), NULL)) {
                         shouldClose = Draw::CreateCycle();
@@ -1385,11 +1385,15 @@ void GuiMenu::ProcessWidgetDragging() {
         SHOUT_TEXT,
         ARMOR_STACK,
         ARMOR_SLOT,
-        ARMOR_SLOT_TEXT
+        ARMOR_SLOT_TEXT,
+        EQUIPSET_ICON,
+        EQUIPSET_NAME,
+        EQUIPSET_EXTRA_TEXT
     };
 
     static DragTarget currentDragTarget = NONE;
     static int draggedArmorSlotIndex = -1;
+    static int draggedEquipsetIndex = -1;
     static float dragStartMouseStageX = 0.0f;
     static float dragStartMouseStageY = 0.0f;
     static int origLefthandX = 0, origLefthandY = 0;
@@ -1401,6 +1405,12 @@ void GuiMenu::ProcessWidgetDragging() {
     static int origArmorBaseX = 0, origArmorBaseY = 0;
     static int origSlotX = 0, origSlotY = 0;
     static int origSlotNameX = 0, origSlotNameY = 0;
+    static int origEquipsetIconX = 0, origEquipsetIconY = 0;
+    static int origEquipsetNameX = 0, origEquipsetNameY = 0;
+    static int origEquipsetExtraX = 0, origEquipsetExtraY = 0;
+    static std::vector<int> origAttachedPotionIndices;
+    static std::vector<int> origAttachedPotionX;
+    static std::vector<int> origAttachedPotionY;
 
     auto drawList = ImGui::GetForegroundDrawList();
 
@@ -1439,6 +1449,8 @@ void GuiMenu::ProcessWidgetDragging() {
         return std::hypot(pt.x - cx, pt.y - cy);
     };
 
+    auto equipsetManager = EquipsetManager::GetSingleton();
+
     // 1. If currently dragging:
     if (currentDragTarget != NONE) {
         ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
@@ -1458,6 +1470,20 @@ void GuiMenu::ProcessWidgetDragging() {
 
             equipment->CreateAllWeaponWidget();
             equipment->CreateAllShoutWidget();
+
+            if (equipsetManager) {
+                for (size_t pi = 0; pi < origAttachedPotionIndices.size(); pi++) {
+                    int pIdx = origAttachedPotionIndices[pi];
+                    if (pIdx >= 0 && pIdx < static_cast<int>(equipsetManager->equipsetVec.size())) {
+                        auto pot = equipsetManager->equipsetVec[pIdx];
+                        if (auto pIcon = pot->GetWidgetIcon()) {
+                            pIcon->offsetX = origAttachedPotionX[pi] + deltaX;
+                            pIcon->offsetY = origAttachedPotionY[pi] + deltaY;
+                            pot->CreateWidget();
+                        }
+                    }
+                }
+            }
 
             dragLabel = fmt::format("HUD Diamond (X: {}, Y: {})", equipment->shout.widgetIcon.offsetX, equipment->lefthand.widgetIcon.offsetY);
 
@@ -1541,6 +1567,53 @@ void GuiMenu::ProcessWidgetDragging() {
             auto [minPt, maxPt] = GetTextBounds(equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetX, equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetY, equipment->armor[draggedArmorSlotIndex].widgetName.offsetX, equipment->armor[draggedArmorSlotIndex].widgetName.offsetY, equipment->armor[draggedArmorSlotIndex].widgetName.align, GetArmorWidgetName(equipment->armor[draggedArmorSlotIndex].slotid), config->Widget.Equipment.Armor.fontSize);
             drawList->AddRect(minPt, maxPt, IM_COL32(255, 215, 0, 220), 4.0f, 0, 2.0f);
             drawList->AddRectFilled(minPt, maxPt, IM_COL32(255, 215, 0, 50), 4.0f);
+        } else if (currentDragTarget == EQUIPSET_ICON && draggedEquipsetIndex >= 0 && equipsetManager && draggedEquipsetIndex < static_cast<int>(equipsetManager->equipsetVec.size())) {
+            auto eq = equipsetManager->equipsetVec[draggedEquipsetIndex];
+            if (auto icon = eq->GetWidgetIcon()) {
+                icon->offsetX = origEquipsetIconX + deltaX;
+                icon->offsetY = origEquipsetIconY + deltaY;
+                eq->CreateWidget();
+                std::string typeName = (eq->type == Equipset::TYPE::POTION) ? "Potion" : (eq->type == Equipset::TYPE::CYCLE ? "Cycle" : "Equipset");
+                dragLabel = fmt::format("{} \"{}\" (X: {}, Y: {})", typeName, eq->name, icon->offsetX, icon->offsetY);
+                drawList->AddCircle(ImVec2(icon->offsetX * S, icon->offsetY * S), 28.0f * S, IM_COL32(0, 255, 255, 220), 32, 2.0f);
+            }
+        } else if (currentDragTarget == EQUIPSET_NAME && draggedEquipsetIndex >= 0 && equipsetManager && draggedEquipsetIndex < static_cast<int>(equipsetManager->equipsetVec.size())) {
+            auto eq = equipsetManager->equipsetVec[draggedEquipsetIndex];
+            if (auto nw = eq->GetWidgetName()) {
+                nw->offsetX = origEquipsetNameX + deltaX;
+                nw->offsetY = origEquipsetNameY + deltaY;
+                eq->CreateWidgetText1();
+                dragLabel = fmt::format("\"{}\" Name (Rel X: {}, Rel Y: {})", eq->name, nw->offsetX, nw->offsetY);
+                if (auto icon = eq->GetWidgetIcon()) {
+                    int fontSz = (eq->type == Equipset::TYPE::POTION) ? config->Widget.Equipset.Potion.fontSize : config->Widget.Equipset.Normal.fontSize;
+                    std::string nameText = (eq->type == Equipset::TYPE::POTION) ? static_cast<PotionSet*>(eq)->GetPotionName() : eq->name;
+                    auto [minPt, maxPt] = GetTextBounds(icon->offsetX, icon->offsetY, nw->offsetX, nw->offsetY, nw->align, nameText, fontSz);
+                    drawList->AddRect(minPt, maxPt, IM_COL32(255, 215, 0, 220), 4.0f, 0, 2.0f);
+                    drawList->AddRectFilled(minPt, maxPt, IM_COL32(255, 215, 0, 50), 4.0f);
+                }
+            }
+        } else if (currentDragTarget == EQUIPSET_EXTRA_TEXT && draggedEquipsetIndex >= 0 && equipsetManager && draggedEquipsetIndex < static_cast<int>(equipsetManager->equipsetVec.size())) {
+            auto eq = equipsetManager->equipsetVec[draggedEquipsetIndex];
+            if (auto ew = eq->GetWidgetExtra()) {
+                ew->offsetX = origEquipsetExtraX + deltaX;
+                ew->offsetY = origEquipsetExtraY + deltaY;
+                eq->CreateWidgetText2();
+                std::string labelName = (eq->type == Equipset::TYPE::POTION) ? "Amount" : "Hotkey";
+                dragLabel = fmt::format("\"{}\" {} (Rel X: {}, Rel Y: {})", eq->name, labelName, ew->offsetX, ew->offsetY);
+                if (auto icon = eq->GetWidgetIcon()) {
+                    int fontSz = (eq->type == Equipset::TYPE::POTION) ? config->Widget.Equipset.Potion.fontSize : config->Widget.Equipset.Normal.fontSize;
+                    std::string extraText = "";
+                    if (eq->type == Equipset::TYPE::POTION) {
+                        extraText = static_cast<PotionSet*>(eq)->GetPotionAmount();
+                    } else {
+                        const char* k = ImGui::GetKeyName(static_cast<ImGuiKey>(eq->hotkey));
+                        extraText = k ? k : "";
+                    }
+                    auto [minPt, maxPt] = GetTextBounds(icon->offsetX, icon->offsetY, ew->offsetX, ew->offsetY, ew->align, extraText, fontSz);
+                    drawList->AddRect(minPt, maxPt, IM_COL32(255, 215, 0, 220), 4.0f, 0, 2.0f);
+                    drawList->AddRectFilled(minPt, maxPt, IM_COL32(255, 215, 0, 50), 4.0f);
+                }
+            }
         }
 
         ImGui::SetTooltip("%s", dragLabel.c_str());
@@ -1548,8 +1621,15 @@ void GuiMenu::ProcessWidgetDragging() {
         if (ImGui::IsMouseReleased(0)) {
             currentDragTarget = NONE;
             draggedArmorSlotIndex = -1;
+            draggedEquipsetIndex = -1;
+            origAttachedPotionIndices.clear();
+            origAttachedPotionX.clear();
+            origAttachedPotionY.clear();
             equipment->Save();
             config->SaveConfig();
+            if (equipsetManager) {
+                equipsetManager->ExportEquipsets();
+            }
         }
         return;
     }
@@ -1559,6 +1639,7 @@ void GuiMenu::ProcessWidgetDragging() {
 
     DragTarget hoveredTarget = NONE;
     int hoveredSlotIndex = -1;
+    int hoveredEquipsetIndex = -1;
     float bestDist = 1e9f;
 
     auto CheckTextHover = [&](DragTarget target, int slotIdx, int iconX, int iconY, int nameX, int nameY, WidgetText::ALIGN_TYPE align, const std::string& text, int fontSz) {
@@ -1652,6 +1733,73 @@ void GuiMenu::ProcessWidgetDragging() {
         }
     }
 
+    // 5. Check Equipsets (Potion, Normal, Cycle):
+    if (equipsetManager) {
+        for (int i = 0; i < static_cast<int>(equipsetManager->equipsetVec.size()); i++) {
+            auto equipset = equipsetManager->equipsetVec[i];
+            if (!equipset) continue;
+
+            auto icon = equipset->GetWidgetIcon();
+            auto nameWidget = equipset->GetWidgetName();
+            auto extraWidget = equipset->GetWidgetExtra();
+
+            int fontSz = 55;
+            if (equipset->type == Equipset::TYPE::POTION) {
+                fontSz = config->Widget.Equipset.Potion.fontSize;
+            } else if (equipset->type == Equipset::TYPE::NORMAL) {
+                fontSz = config->Widget.Equipset.Normal.fontSize;
+            } else if (equipset->type == Equipset::TYPE::CYCLE) {
+                fontSz = config->Widget.Equipset.Cycle.fontSize;
+            }
+
+            // Check extra text (Amount / Hotkey):
+            if (icon && icon->enable && extraWidget && extraWidget->enable) {
+                std::string extraText = "";
+                if (equipset->type == Equipset::TYPE::POTION) {
+                    extraText = static_cast<PotionSet*>(equipset)->GetPotionAmount();
+                } else {
+                    const char* k = ImGui::GetKeyName(static_cast<ImGuiKey>(equipset->hotkey));
+                    extraText = k ? k : "";
+                }
+                if (!extraText.empty()) {
+                    auto [minPt, maxPt] = GetTextBounds(icon->offsetX, icon->offsetY, extraWidget->offsetX, extraWidget->offsetY, extraWidget->align, extraText, fontSz);
+                    if (IsInside(io.MousePos, minPt, maxPt)) {
+                        float d = BoxDistance(io.MousePos, minPt, maxPt);
+                        if (d < bestDist) {
+                            bestDist = d;
+                            hoveredTarget = EQUIPSET_EXTRA_TEXT;
+                            hoveredEquipsetIndex = i;
+                        }
+                    }
+                }
+            }
+
+            // Check name text:
+            if (icon && icon->enable && nameWidget && nameWidget->enable) {
+                std::string nameText = (equipset->type == Equipset::TYPE::POTION) ? static_cast<PotionSet*>(equipset)->GetPotionName() : equipset->name;
+                auto [minPt, maxPt] = GetTextBounds(icon->offsetX, icon->offsetY, nameWidget->offsetX, nameWidget->offsetY, nameWidget->align, nameText, fontSz);
+                if (IsInside(io.MousePos, minPt, maxPt)) {
+                    float d = BoxDistance(io.MousePos, minPt, maxPt);
+                    if (d < bestDist) {
+                        bestDist = d;
+                        hoveredTarget = EQUIPSET_NAME;
+                        hoveredEquipsetIndex = i;
+                    }
+                }
+            }
+
+            // Check icon:
+            if (icon && icon->enable) {
+                float dist = std::hypot(io.MousePos.x - icon->offsetX * S, io.MousePos.y - icon->offsetY * S);
+                if (dist < 28.0f * S && dist < bestDist) {
+                    bestDist = dist;
+                    hoveredTarget = EQUIPSET_ICON;
+                    hoveredEquipsetIndex = i;
+                }
+            }
+        }
+    }
+
     if (hoveredTarget != NONE) {
         ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
 
@@ -1697,6 +1845,44 @@ void GuiMenu::ProcessWidgetDragging() {
             drawList->AddRect(minPt, maxPt, IM_COL32(255, 215, 0, 220), 4.0f, 0, 2.0f);
             drawList->AddRectFilled(minPt, maxPt, IM_COL32(255, 215, 0, 40), 4.0f);
             tip = fmt::format("Armor Slot {} Text: \"{}\" (Drag to move label)", hoveredSlotIndex + 30, GetArmorWidgetName(equipment->armor[hoveredSlotIndex].slotid));
+        } else if (hoveredTarget == EQUIPSET_ICON && hoveredEquipsetIndex >= 0 && equipsetManager && hoveredEquipsetIndex < static_cast<int>(equipsetManager->equipsetVec.size())) {
+            auto eq = equipsetManager->equipsetVec[hoveredEquipsetIndex];
+            if (auto icon = eq->GetWidgetIcon()) {
+                drawList->AddCircle(ImVec2(icon->offsetX * S, icon->offsetY * S), 28.0f * S, IM_COL32(255, 215, 0, 180), 32, 2.0f);
+                std::string typeName = (eq->type == Equipset::TYPE::POTION) ? "Potion" : (eq->type == Equipset::TYPE::CYCLE ? "Cycle" : "Equipset");
+                tip = fmt::format("{} \"{}\" (Drag to move)", typeName, eq->name);
+            }
+        } else if (hoveredTarget == EQUIPSET_NAME && hoveredEquipsetIndex >= 0 && equipsetManager && hoveredEquipsetIndex < static_cast<int>(equipsetManager->equipsetVec.size())) {
+            auto eq = equipsetManager->equipsetVec[hoveredEquipsetIndex];
+            if (auto icon = eq->GetWidgetIcon()) {
+                if (auto nw = eq->GetWidgetName()) {
+                    int fontSz = (eq->type == Equipset::TYPE::POTION) ? config->Widget.Equipset.Potion.fontSize : config->Widget.Equipset.Normal.fontSize;
+                    std::string nameText = (eq->type == Equipset::TYPE::POTION) ? static_cast<PotionSet*>(eq)->GetPotionName() : eq->name;
+                    auto [minPt, maxPt] = GetTextBounds(icon->offsetX, icon->offsetY, nw->offsetX, nw->offsetY, nw->align, nameText, fontSz);
+                    drawList->AddRect(minPt, maxPt, IM_COL32(255, 215, 0, 220), 4.0f, 0, 2.0f);
+                    drawList->AddRectFilled(minPt, maxPt, IM_COL32(255, 215, 0, 40), 4.0f);
+                    tip = fmt::format("\"{}\" Name: \"{}\" (Drag to move label)", eq->name, nameText);
+                }
+            }
+        } else if (hoveredTarget == EQUIPSET_EXTRA_TEXT && hoveredEquipsetIndex >= 0 && equipsetManager && hoveredEquipsetIndex < static_cast<int>(equipsetManager->equipsetVec.size())) {
+            auto eq = equipsetManager->equipsetVec[hoveredEquipsetIndex];
+            if (auto icon = eq->GetWidgetIcon()) {
+                if (auto ew = eq->GetWidgetExtra()) {
+                    int fontSz = (eq->type == Equipset::TYPE::POTION) ? config->Widget.Equipset.Potion.fontSize : config->Widget.Equipset.Normal.fontSize;
+                    std::string extraText = "";
+                    if (eq->type == Equipset::TYPE::POTION) {
+                        extraText = static_cast<PotionSet*>(eq)->GetPotionAmount();
+                    } else {
+                        const char* k = ImGui::GetKeyName(static_cast<ImGuiKey>(eq->hotkey));
+                        extraText = k ? k : "";
+                    }
+                    auto [minPt, maxPt] = GetTextBounds(icon->offsetX, icon->offsetY, ew->offsetX, ew->offsetY, ew->align, extraText, fontSz);
+                    drawList->AddRect(minPt, maxPt, IM_COL32(255, 215, 0, 220), 4.0f, 0, 2.0f);
+                    drawList->AddRectFilled(minPt, maxPt, IM_COL32(255, 215, 0, 40), 4.0f);
+                    std::string labelName = (eq->type == Equipset::TYPE::POTION) ? "Amount" : "Hotkey";
+                    tip = fmt::format("\"{}\" {}: \"{}\" (Drag to move label)", eq->name, labelName, extraText);
+                }
+            }
         }
 
         ImGui::SetTooltip("%s", tip.c_str());
@@ -1704,6 +1890,7 @@ void GuiMenu::ProcessWidgetDragging() {
         if (ImGui::IsMouseClicked(0)) {
             currentDragTarget = hoveredTarget;
             draggedArmorSlotIndex = hoveredSlotIndex;
+            draggedEquipsetIndex = hoveredEquipsetIndex;
             dragStartMouseStageX = mouseStageX;
             dragStartMouseStageY = mouseStageY;
 
@@ -1730,6 +1917,45 @@ void GuiMenu::ProcessWidgetDragging() {
                 origSlotY = equipment->armor[hoveredSlotIndex].widgetIcon.offsetY;
                 origSlotNameX = equipment->armor[hoveredSlotIndex].widgetName.offsetX;
                 origSlotNameY = equipment->armor[hoveredSlotIndex].widgetName.offsetY;
+            }
+
+            if (hoveredEquipsetIndex >= 0 && equipsetManager && hoveredEquipsetIndex < static_cast<int>(equipsetManager->equipsetVec.size())) {
+                auto eq = equipsetManager->equipsetVec[hoveredEquipsetIndex];
+                if (auto icon = eq->GetWidgetIcon()) {
+                    origEquipsetIconX = icon->offsetX;
+                    origEquipsetIconY = icon->offsetY;
+                }
+                if (auto nw = eq->GetWidgetName()) {
+                    origEquipsetNameX = nw->offsetX;
+                    origEquipsetNameY = nw->offsetY;
+                }
+                if (auto ew = eq->GetWidgetExtra()) {
+                    origEquipsetExtraX = ew->offsetX;
+                    origEquipsetExtraY = ew->offsetY;
+                }
+            }
+
+            origAttachedPotionIndices.clear();
+            origAttachedPotionX.clear();
+            origAttachedPotionY.clear();
+            if (currentDragTarget == DIAMOND_CLUSTER && equipsetManager) {
+                float resScale = config->Widget.General.autoResolutionScale ? Utility::GetResolutionScale() : 1.0f;
+                float weaponBg = (config->Widget.Equipment.Weapon.bgType != "_NONE" && config->Widget.Equipment.Weapon.bgAlpha > 0) ? (float)config->Widget.Equipment.Weapon.bgSize : 63.0f;
+                int32_t radius = std::max(36, static_cast<int32_t>(std::round(40.0f * (weaponBg / 63.0f) * resScale)));
+                for (int pi = 0; pi < static_cast<int>(equipsetManager->equipsetVec.size()); pi++) {
+                    auto pot = equipsetManager->equipsetVec[pi];
+                    if (pot && pot->type == Equipset::TYPE::POTION) {
+                        if (auto pIcon = pot->GetWidgetIcon()) {
+                            if (pIcon->enable &&
+                                std::abs(pIcon->offsetX - origShoutX) < 40 &&
+                                std::abs(pIcon->offsetY - (origLefthandY + radius)) < 40) {
+                                origAttachedPotionIndices.push_back(pi);
+                                origAttachedPotionX.push_back(pIcon->offsetX);
+                                origAttachedPotionY.push_back(pIcon->offsetY);
+                            }
+                        }
+                    }
+                }
             }
 
             if (currentDragTarget == ARMOR_SLOT || currentDragTarget == ARMOR_SLOT_TEXT) {

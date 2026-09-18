@@ -23,6 +23,9 @@ public:
     virtual void Equip() = 0;
     virtual void CreateWidget() = 0;
     virtual void RemoveWidget() = 0;
+    virtual WidgetIcon* GetWidgetIcon() { return nullptr; }
+    virtual WidgetText* GetWidgetName() { return nullptr; }
+    virtual WidgetText* GetWidgetExtra() { return nullptr; }
     void CreateWidgetBackground();
     void CreateWidgetIcon();
     void CreateWidgetText1();
@@ -50,6 +53,9 @@ public:
     virtual void Equip() override;
     virtual void CreateWidget() override;
     virtual void RemoveWidget() override;
+    virtual WidgetIcon* GetWidgetIcon() override { return &widgetIcon; }
+    virtual WidgetText* GetWidgetName() override { return &widgetName; }
+    virtual WidgetText* GetWidgetExtra() override { return &widgetHotkey; }
 
     void operator=(const NormalSet& _equipset) {
         this->type = _equipset.type;
@@ -90,6 +96,9 @@ public:
     virtual void Equip() override;
     virtual void CreateWidget() override;
     virtual void RemoveWidget() override;
+    virtual WidgetIcon* GetWidgetIcon() override { return &widgetIcon; }
+    virtual WidgetText* GetWidgetName() override { return &widgetName; }
+    virtual WidgetText* GetWidgetExtra() override { return &widgetAmount; }
     void AssignAutoPotion();
     std::string GetPotionName();
     std::string GetPotionAmount();
@@ -135,6 +144,9 @@ public:
     std::atomic<float> cycleResetProgress{0.0f};
     
 public:
+    virtual WidgetIcon* GetWidgetIcon() override { return &widgetIcon; }
+    virtual WidgetText* GetWidgetName() override { return &widgetName; }
+    virtual WidgetText* GetWidgetExtra() override { return &widgetHotkey; }
     void SetExpireProgress(const float& _amount);
     void StartExpireTimer();
     void CloseExpireTimer();

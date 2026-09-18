@@ -1165,17 +1165,29 @@ std::string PotionSet::GetPotionName() {
             const char* n = this->health.form->GetName();
             if (n) result = n;
         }
+    } else if (this->health.type == Data::DATATYPE::POTION) {
+        if (!this->health.name.empty()) {
+            result = this->health.name;
+        }
     } else if (this->magicka.type == Data::DATATYPE::POTION_AUTO_HIGHEST ||
                this->magicka.type == Data::DATATYPE::POTION_AUTO_LOWEST) {
         if (this->magicka.form) {
             const char* n = this->magicka.form->GetName();
             if (n) result = n;
         }
+    } else if (this->magicka.type == Data::DATATYPE::POTION) {
+        if (!this->magicka.name.empty()) {
+            result = this->magicka.name;
+        }
     } else if (this->stamina.type == Data::DATATYPE::POTION_AUTO_HIGHEST ||
                this->stamina.type == Data::DATATYPE::POTION_AUTO_LOWEST) {
         if (this->stamina.form) {
             const char* n = this->stamina.form->GetName();
             if (n) result = n;
+        }
+    } else if (this->stamina.type == Data::DATATYPE::POTION) {
+        if (!this->stamina.name.empty()) {
+            result = this->stamina.name;
         }
     }
     return result;
