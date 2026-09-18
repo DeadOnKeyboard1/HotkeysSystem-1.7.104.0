@@ -453,6 +453,10 @@ namespace Draw {
     }
 
     void EndGroupPanel() {
+        if (s_GroupPanelPaddingStack.empty() || s_GroupPanelLabelStack.empty()) {
+            return;
+        }
+
         ImGui::PopItemWidth();
 
         auto itemSpacing = ImGui::GetStyle().ItemSpacing;

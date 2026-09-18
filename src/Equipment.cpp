@@ -353,8 +353,10 @@ std::string GetWeaponWidgetPath(bool _isLeft) {
         if (keywordForm) {
             auto keywords = keywordForm->GetKeywords();
             for (auto elem : keywords) {
-                auto str = static_cast<std::string>(elem->formEditorID);
-                keyword.push_back(str);
+                if (elem) {
+                    auto str = static_cast<std::string>(elem->formEditorID);
+                    keyword.push_back(str);
+                }
             }
         }
 
@@ -536,8 +538,10 @@ std::string GetShoutWidgetPath(bool _unequip = false) {
         if (keywordForm) {
             auto keywords = keywordForm->GetKeywords();
             for (auto elem : keywords) {
-                auto str = static_cast<std::string>(elem->formEditorID);
-                keyword.push_back(str);
+                if (elem) {
+                    auto str = static_cast<std::string>(elem->formEditorID);
+                    keyword.push_back(str);
+                }
             }
         }
 

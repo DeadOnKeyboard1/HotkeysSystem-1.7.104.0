@@ -217,7 +217,9 @@ namespace Shared::Normal {
                     auto buttonSize = ImGui::CalcTextSize((TRANSLATE("_OK") + TRANSLATE("_CANCEL")).c_str());
                     if (ImGui::Button(C_TRANSLATE("_OK"),
                                       ImVec2(ImGui::GetWindowContentRegionMax().x * 0.45f, buttonSize.y + 15.0f))) {
-                        _armor->push_back(dataHandler->armor[*_popup_armorIndex]);
+                        if (*_popup_armorIndex < dataHandler->armor.size()) {
+                            _armor->push_back(dataHandler->armor[*_popup_armorIndex]);
+                        }
                         ImGui::CloseCurrentPopup();
                     }
 

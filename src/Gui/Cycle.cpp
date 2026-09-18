@@ -146,7 +146,9 @@ namespace Shared::Cycle {
                     auto buttonSize = ImGui::CalcTextSize((TRANSLATE("_OK") + TRANSLATE("_CANCEL")).c_str());
                     if (ImGui::Button(C_TRANSLATE("_OK"),
                                       ImVec2(ImGui::GetWindowContentRegionMax().x * 0.45f, buttonSize.y + 15.0f))) {
-                        _equipset->push_back(items[*_popup_equipsetIndex]);
+                        if (*_popup_equipsetIndex < items.size()) {
+                            _equipset->push_back(items[*_popup_equipsetIndex]);
+                        }
                         ImGui::CloseCurrentPopup();
                     }
 

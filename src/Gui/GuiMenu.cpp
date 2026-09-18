@@ -1327,7 +1327,7 @@ void GuiMenu::ProcessWidgetDragging() {
             equipment->CreateAllArmorWidget();
             dragLabel = fmt::format("Armor Stack (Base X: {}, Base Y: {})", equipment->armorStackBaseX, equipment->armorStackBaseY);
             drawList->AddCircle(ImVec2(equipment->armorStackBaseX * S, equipment->armorStackBaseY * S), 25.0f * S, IM_COL32(255, 215, 0, 220), 32, 2.5f);
-        } else if (currentDragTarget == ARMOR_SLOT && draggedArmorSlotIndex >= 0 && draggedArmorSlotIndex < 32) {
+        } else if (currentDragTarget == ARMOR_SLOT && draggedArmorSlotIndex >= 0 && draggedArmorSlotIndex < static_cast<int>(equipment->armor.size())) {
             config->Widget.General.hudArmorAutoStack = false;
             equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetX = origSlotX + deltaX;
             equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetY = origSlotY + deltaY;
@@ -1336,7 +1336,7 @@ void GuiMenu::ProcessWidgetDragging() {
             equipment->armor[draggedArmorSlotIndex].CreateWidgetText1();
             dragLabel = fmt::format("Armor Slot {} (X: {}, Y: {})", draggedArmorSlotIndex + 30, equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetX, equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetY);
             drawList->AddCircle(ImVec2(equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetX * S, equipment->armor[draggedArmorSlotIndex].widgetIcon.offsetY * S), 20.0f * S, IM_COL32(0, 255, 255, 220), 32, 2.0f);
-        } else if (currentDragTarget == ARMOR_SLOT_TEXT && draggedArmorSlotIndex >= 0 && draggedArmorSlotIndex < 32) {
+        } else if (currentDragTarget == ARMOR_SLOT_TEXT && draggedArmorSlotIndex >= 0 && draggedArmorSlotIndex < static_cast<int>(equipment->armor.size())) {
             config->Widget.General.hudArmorAutoStack = false;
             equipment->armor[draggedArmorSlotIndex].widgetName.offsetX = origSlotNameX + deltaX;
             equipment->armor[draggedArmorSlotIndex].widgetName.offsetY = origSlotNameY + deltaY;
@@ -1529,7 +1529,7 @@ void GuiMenu::ProcessWidgetDragging() {
             origArmorBaseX = equipment->armorStackBaseX;
             origArmorBaseY = equipment->armorStackBaseY;
 
-            if (hoveredSlotIndex >= 0 && hoveredSlotIndex < 32) {
+            if (hoveredSlotIndex >= 0 && hoveredSlotIndex < static_cast<int>(equipment->armor.size())) {
                 origSlotX = equipment->armor[hoveredSlotIndex].widgetIcon.offsetX;
                 origSlotY = equipment->armor[hoveredSlotIndex].widgetIcon.offsetY;
                 origSlotNameX = equipment->armor[hoveredSlotIndex].widgetName.offsetX;

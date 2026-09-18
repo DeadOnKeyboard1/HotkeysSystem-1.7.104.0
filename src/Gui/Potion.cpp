@@ -171,7 +171,9 @@ namespace Shared::Potion {
                     auto buttonSize = ImGui::CalcTextSize((TRANSLATE("_OK") + TRANSLATE("_CANCEL")).c_str());
                     if (ImGui::Button(C_TRANSLATE("_OK"),
                                       ImVec2(ImGui::GetWindowContentRegionMax().x * 0.45f, buttonSize.y + 15.0f))) {
-                        _potion->push_back(dataHandler->potion[*_popup_potionIndex]);
+                        if (*_popup_potionIndex < dataHandler->potion.size()) {
+                            _potion->push_back(dataHandler->potion[*_popup_potionIndex]);
+                        }
                         ImGui::CloseCurrentPopup();
                     }
 

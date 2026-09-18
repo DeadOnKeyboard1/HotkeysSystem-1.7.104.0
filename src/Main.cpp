@@ -21,14 +21,15 @@ void postInitCallback() {
     auto menu = GuiMenu::GetSingleton();
     if (!menu) return;
 
-    DXGIPresentHook::callback_mutex.lock();
-    DXGIPresentHook::pre_callbacks.push_back([menu]() { 
-        menu->LoadFont();
-    });
-    DXGIPresentHook::mid_callbacks.push_back([menu]() { 
-        menu->DrawMain();
-    });
-    DXGIPresentHook::callback_mutex.unlock();
+    {
+        std::lock_guard<std::mutex> lock(DXGIPresentHook::callback_mutex);
+        DXGIPresentHook::pre_callbacks.push_back([menu]() { 
+            menu->LoadFont();
+        });
+        DXGIPresentHook::mid_callbacks.push_back([menu]() { 
+            menu->DrawMain();
+        });
+    }
     menu->NotifyInit();
 }
 

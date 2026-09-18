@@ -20,7 +20,7 @@ CombatHandler::EventResult CombatHandler::ProcessEvent(const RE::TESCombatEvent*
     auto target = _event->targetActor ? _event->targetActor->As<RE::Actor>() : nullptr;
 
     if (!source || !target) return RE::BSEventNotifyControl::kContinue;
-    if (target->GetFormID() != 0x14) return RE::BSEventNotifyControl::kContinue;
+    if (source->GetFormID() != 0x14 && target->GetFormID() != 0x14) return RE::BSEventNotifyControl::kContinue;
 
     auto widgetHandler = WidgetHandler::GetSingleton();
     if (!widgetHandler) return EventResult::kContinue;
