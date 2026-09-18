@@ -1,0 +1,22 @@
+[0]
+equipset_equipSound = true
+equipset_hotkey = 545
+equipset_itemsArr = []
+equipset_itemsCount = 0
+equipset_lefthand = '0;##;Nothing;##;0;##;_ENCHNONE_;##;0.000000;##;0;##;;##;'
+equipset_modifier1 = false
+equipset_modifier2 = false
+equipset_modifier3 = false
+equipset_name = 'Equipset - 1'
+equipset_order = 1
+equipset_reEquip = true
+equipset_righthand = '2;##;Ebony Sword;##;0;##;_ENCHNONE_;##;0.000000;##;80305;##;Skyrim.esm;##;'
+equipset_shout = '0;##;Nothing;##;0;##;;##;'
+equipset_toggleEquip = true
+equipset_type = 0
+equipset_widgetHotkey = '0;##;2;##;0;##;0;##;'
+equipset_widgetIcon = '1;##;_KATANA;##;0;##;0;##;'
+equipset_widgetName = '0;##;2;##;0;##;0;##;'
+
+[Init]
+equipset_count = 1

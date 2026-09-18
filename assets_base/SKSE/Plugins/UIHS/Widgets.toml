@@ -1,0 +1,135 @@
+# Custom Widget Section
+# (Notice) id can be any of string or value but it must be unique in Default, Custom Widget section.
+# (Notice) id '_NONE' and '_BACKGROUND' already reserved for Default Widget.
+# id: identifier for plugin to distinguish each widgets.
+# name: Actual displaying text of widget from selecting on ui.
+# path: Path of widget.
+Custom_Widget = [
+	{ id = '_ALTERATION', name = 'Alteration', path = 'UIHS/Alteration.dds' },
+	{ id = '_AXE', name = 'Axe', path = 'UIHS/Axe.dds' },
+	{ id = '_BACKGROUND2', name = 'Background2', path = 'UIHS/Background2.dds' },
+	{ id = '_BACKGROUND3', name = 'Background3', path = 'UIHS/Background3.dds' },
+	{ id = '_BACKGROUND4', name = 'Background4', path = 'UIHS/Background4.dds' },
+	{ id = '_BATTLEAXE', name = 'Battleaxe', path = 'UIHS/Battleaxe.dds' },
+	{ id = '_BOW', name = 'Bow', path = 'UIHS/Bow.dds' },
+	{ id = '_CLAW', name = 'Claw', path = 'UIHS/Claw.dds' },
+	{ id = '_CONJURATION', name = 'Conjuration', path = 'UIHS/Conjuration.dds' },
+	{ id = '_CROSSBOW', name = 'Crossbow', path = 'UIHS/Crossbow.dds' },
+	{ id = '_DAGGER', name = 'Dagger', path = 'UIHS/Dagger.dds' },
+	{ id = '_DESTRUCTION', name = 'Destruction', path = 'UIHS/Destruction.dds' },
+	{ id = '_GLOVE', name = 'Glove', path = 'UIHS/Glove.dds' },
+	{ id = '_GREATSWORD', name = 'Greatsword', path = 'UIHS/Greatsword.dds' },
+	{ id = '_GUN', name = 'Gun', path = 'UIHS/Gun.dds' },
+	{ id = '_HALBERD', name = 'Halberd', path = 'UIHS/Halberd.dds' },
+	{ id = '_ILLUSION', name = 'Illusion', path = 'UIHS/Illusion.dds' },
+	{ id = '_JAVELIN', name = 'Javelin', path = 'UIHS/Javelin.dds' },
+	{ id = '_KATANA', name = 'Katana', path = 'UIHS/Katana.dds' },
+	{ id = '_MACE', name = 'Mace', path = 'UIHS/Mace.dds' },
+	{ id = '_Pike', name = 'Pike', path = 'UIHS/Pike.dds' },
+	{ id = '_POTION_BLANK', name = 'Potion (Blank)', path = 'UIHS/PotionBlank.dds' },
+	{ id = '_POTION_HEALTH', name = 'Potion (Health)', path = 'UIHS/PotionHealth.dds' },
+	{ id = '_POTION_MAGICKA', name = 'Potion (Magicka)', path = 'UIHS/PotionMagicka.dds' },
+	{ id = '_POTION_POISON', name = 'Potion (Poison)', path = 'UIHS/PotionPoison.dds' },
+	{ id = '_POTION_STAMINA', name = 'Potion (Stamina)', path = 'UIHS/PotionStamina.dds' },
+	{ id = '_POWER', name = 'Power', path = 'UIHS/Power.dds' },
+	{ id = '_QUARTERSTAFF', name = 'Quarterstaff', path = 'UIHS/Quarterstaff.dds' },
+	{ id = '_RAPIER', name = 'Rapier', path = 'UIHS/Rapier.dds' },
+	{ id = '_RESTORATION', name = 'Restoration', path = 'UIHS/Restoration.dds' },
+	{ id = '_SCYTHE', name = 'Scythe', path = 'UIHS/Scythe.dds' },
+	{ id = '_SHIELD', name = 'Shield', path = 'UIHS/Shield.dds' },
+	{ id = '_SHOUT', name = 'Shout', path = 'UIHS/Shout.dds' },
+	{ id = '_SPEAR', name = 'Spear', path = 'UIHS/Spear.dds' },
+	{ id = '_STAFF', name = 'Staff', path = 'UIHS/Staff.dds' },
+	{ id = '_SWORD', name = 'Sword', path = 'UIHS/Sword.dds' },
+	{ id = '_TORCH', name = 'Torch', path = 'UIHS/Torch.dds' },
+	{ id = '_UNARMED', name = 'Unarmed', path = 'UIHS/Unarmed.dds' },
+	{ id = '_WARHAMMER', name = 'Warhammer', path = 'UIHS/Warhammer.dds' },
+	{ id = '_WHIP', name = 'Whip', path = 'UIHS/Whip.dds' },
+]
+
+# Custom Equipment Widget Section
+# (Notic) Use only 'formid + modname + path' or 'keyword + path'
+# formid: FormID of the item.
+# modname: Full mod name of item with extension 'esp' or 'esm'.
+# keyword: Keyword of the item.
+# path: Path of widget.
+Custom_Equipment_Widget = [
+	{ keyword = 'WeapTypeWarhammer', path = 'UIHS/Warhammer.dds' },
+	{ keyword = 'WeapTypeClaw', path = 'UIHS/Claw.dds' },
+	{ keyword = 'WeapTypeGun', path = 'UIHS/Gun.dds' },
+	{ keyword = 'WeapTypeHalberd', path = 'UIHS/Halberd.dds' },
+	{ keyword = 'WeapTypeJavelin', path = 'UIHS/Javelin.dds' },
+	{ keyword = 'WeapTypeKatana', path = 'UIHS/Katana.dds' },
+	{ keyword = 'WeapTypeQuarterstaff', path = 'UIHS/Quarterstaff.dds' },
+	{ keyword = 'WeapTypeRapier', path = 'UIHS/Rapier.dds' },
+	{ keyword = 'WeapTypeScythe', path = 'UIHS/Scythe.dds' },
+	{ keyword = 'WeapTypeSpear', path = 'UIHS/Spear.dds' },
+	{ keyword = 'WeapTypeWhip', path = 'UIHS/Whip.dds' },
+	{ formid = '0x04E4EE', modname = 'Skyrim.esm', path = 'UIHS/Dawnbreaker.dds' },
+]
+
+# Default Widget Section
+# Do not remove any of these items on the list.
+# Changing the 'name' or 'path' to valid one is fine.
+Default_Widget = [
+	{ id = '_NONE', name = 'None', path = 'UIHS/NULL.dds' },
+	{ id = '_BACKGROUND', name = 'Background', path = 'UIHS/Background.dds' },
+]
+
+# Default Equipment Widget Section
+# Do not remove any of these items on the list.
+# Changing the 'path' to valid one is fine.
+Default_Equipment_Widget = [
+	{ id = '_NULL', path = 'UIHS/NULL.dds' },
+	{ id = '_SWORD', path = 'UIHS/Sword.dds' },
+	{ id = '_DAGGER', path = 'UIHS/Dagger.dds' },
+	{ id = '_AXE', path = 'UIHS/Axe.dds' },
+	{ id = '_MACE', path = 'UIHS/Mace.dds' },
+	{ id = '_GREATSWORD', path = 'UIHS/Greatsword.dds' },
+	{ id = '_BATTLEAXE', path = 'UIHS/Battleaxe.dds' },
+	{ id = '_BOW', path = 'UIHS/Bow.dds' },
+	{ id = '_STAFF', path = 'UIHS/Staff.dds' },
+	{ id = '_CROSSBOW', path = 'UIHS/Crossbow.dds' },
+	{ id = '_ALTERATION', path = 'UIHS/Alteration.dds' },
+	{ id = '_CONJURATION', path = 'UIHS/Conjuration.dds' },
+	{ id = '_DESTRUCTION', path = 'UIHS/Destruction.dds' },
+	{ id = '_ILLUSION', path = 'UIHS/Illusion.dds' },
+	{ id = '_RESTORATION', path = 'UIHS/Restoration.dds' },
+	{ id = '_UNARMED', path = 'UIHS/Unarmed.dds' },
+	{ id = '_SHIELD', path = 'UIHS/Shield.dds' },
+	{ id = '_TORCH', path = 'UIHS/Torch.dds' },
+	{ id = '_POWER', path = 'UIHS/Power.dds' },
+	{ id = '_SHOUT', path = 'UIHS/Shout.dds' },
+	{ id = '_SLOT30', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT31', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT32', path = 'UIHS/Armor_Body.dds' },
+	{ id = '_SLOT33', path = 'UIHS/Armor_Glove.dds' },
+	{ id = '_SLOT34', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT35', path = 'UIHS/Armor_Amulet.dds' },
+	{ id = '_SLOT36', path = 'UIHS/Armor_Ring.dds' },
+	{ id = '_SLOT37', path = 'UIHS/Armor_Feet.dds' },
+	{ id = '_SLOT38', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT39', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT40', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT41', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT42', path = 'UIHS/Armor_Head.dds' },
+	{ id = '_SLOT43', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT44', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT45', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT46', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT47', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT48', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT49', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT50', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT51', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT52', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT53', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT54', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT55', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT56', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT57', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT58', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT59', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT60', path = 'UIHS/Armor_Else.dds' },
+	{ id = '_SLOT61', path = 'UIHS/Armor_Else.dds' },
+]

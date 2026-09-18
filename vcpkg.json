@@ -1,0 +1,27 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+    "name": "ui-integrated-hotkeys-system",
+    "version-string": "1.0.0",
+    "port-version": 0,
+    "description": "Hotkeys System SKSE plugin for Skyrim SE.",
+    "homepage": "",
+    "license": "Apache-2.0",
+    "features": {
+        "plugin": {
+            "description": "Build the SKSE plugin.",
+            "dependencies": [
+                "tomlplusplus",
+                "commonlibsse-ng",
+                {
+                  "name": "imgui",
+                  "features": [
+                    "win32-binding"
+                  ]
+                }
+            ]
+        }
+    },
+    "default-features": [
+        "plugin"
+    ]
+}

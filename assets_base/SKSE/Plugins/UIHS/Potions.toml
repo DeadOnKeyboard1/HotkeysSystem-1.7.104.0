@@ -1,0 +1,20 @@
+# 0x3EB15 | Base Effect | AlchRestoreHealth "Restore Health"
+# 0xFFA03 | Base Effect | AlchRestoreHealthAll "Restore Health"
+Health = [
+	{ formid = '0x3EB15', modname = 'Skyrim.esm' },
+	{ formid = '0xFFA03', modname = 'Skyrim.esm' },
+]
+
+# 0x3EB17 | Base Effect | AlchRestoreMagicka "Restore Magicka"
+# 0xFFA04 | Base Effect | AlchRestoreMagickaAll "Restore Magicka"
+Magicka = [
+	{ formid = '0x3EB17', modname = 'Skyrim.esm' },
+	{ formid = '0xFFA04', modname = 'Skyrim.esm' },
+]
+
+# 0x3EB16 | Base Effect | AlchRestoreStamina "Restore Stamina"
+# 0xFFA05 | Base Effect | AlchRestoreStaminaAll "Restore Stamina"
+Stamina = [
+	{ formid = '0x3EB16', modname = 'Skyrim.esm' },
+	{ formid = '0xFFA05', modname = 'Skyrim.esm' },
+]
