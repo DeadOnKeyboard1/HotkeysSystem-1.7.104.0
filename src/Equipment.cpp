@@ -813,7 +813,9 @@ void EquipmentBase::CreateWidgetText1() {
             float bgW = (config->Widget.Equipment.Armor.bgType != "_NONE" && config->Widget.Equipment.Armor.bgAlpha > 0) ?
                         (1.3f * (float)config->Widget.Equipment.Armor.bgSize * resScale) : 0.0f;
             float visualW = std::max(iconW, bgW);
-            int32_t minSafeOffsetX = static_cast<int32_t>(std::ceil((visualW * 0.5f) + std::max(12.0f * resScale, 14.0f)));
+            int32_t minSafeOffsetX = (config->Widget.Equipment.Armor.bgType != "_NONE" && config->Widget.Equipment.Armor.bgAlpha > 0) ?
+                        static_cast<int32_t>(std::ceil((visualW * 0.5f) + 14.0f * resScale)) :
+                        static_cast<int32_t>(std::round(22.0f * resScale));
 
             int32_t finalOffsetX = armor->widgetName.offsetX;
             if (config->Widget.General.hudArmorAutoStack || finalOffsetX < minSafeOffsetX) {
@@ -999,8 +1001,9 @@ void EquipmentManager::AutoArrangeArmorSlots() {
     int32_t stepY = static_cast<int32_t>(std::ceil(slotH + gap));
 
     // Dynamic horizontal text offset: from icon/box center to beyond right edge of the box plus padding
-    float textPadding = std::max(12.0f * resScale, 14.0f);
-    int32_t nameOffsetX = static_cast<int32_t>(std::ceil((visualIconH * 0.5f) + textPadding));
+    int32_t nameOffsetX = (config->Widget.Equipment.Armor.bgType != "_NONE" && config->Widget.Equipment.Armor.bgAlpha > 0) ?
+                          static_cast<int32_t>(std::ceil((visualIconH * 0.5f) + 14.0f * resScale)) :
+                          static_cast<int32_t>(std::round(22.0f * resScale));
 
     const int32_t baseX = this->armorStackBaseX;
     const int32_t baseY = this->armorStackBaseY;
@@ -1043,33 +1046,27 @@ void EquipmentManager::AutoArrangeDiamondCluster() {
     }
 
     float resScale = config->Widget.General.autoResolutionScale ? Utility::GetResolutionScale() : 1.0f;
-    float weaponIcon = (float)config->Widget.Equipment.Weapon.widgetSize * resScale;
-    float shoutIcon = (float)config->Widget.Equipment.Shout.widgetSize * resScale;
     float weaponBg = (config->Widget.Equipment.Weapon.bgType != "_NONE" && config->Widget.Equipment.Weapon.bgAlpha > 0) ?
-                     (1.3f * (float)config->Widget.Equipment.Weapon.bgSize * resScale) : 0.0f;
-    float shoutBg = (config->Widget.Equipment.Shout.bgType != "_NONE" && config->Widget.Equipment.Shout.bgAlpha > 0) ?
-                    (1.3f * (float)config->Widget.Equipment.Shout.bgSize * resScale) : 0.0f;
-
-    float maxVisual = std::max({weaponIcon, shoutIcon, weaponBg, shoutBg});
-    int32_t radius = std::max(40, static_cast<int32_t>(std::ceil(maxVisual * 0.85f)));
+                     (float)config->Widget.Equipment.Weapon.bgSize : 63.0f;
+    int32_t radius = std::max(36, static_cast<int32_t>(std::round(40.0f * (weaponBg / 63.0f) * resScale)));
 
     this->shout.widgetIcon.offsetX = centerX;
     this->shout.widgetIcon.offsetY = centerY - radius;
     this->shout.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
     this->shout.widgetName.offsetX = 0;
-    this->shout.widgetName.offsetY = -static_cast<int32_t>(std::ceil((radius * 0.35f) + (shoutIcon * 0.5f) + 10.0f * resScale));
+    this->shout.widgetName.offsetY = -radius - static_cast<int32_t>(std::round(12.0f * resScale));
 
     this->lefthand.widgetIcon.offsetX = centerX - radius;
     this->lefthand.widgetIcon.offsetY = centerY;
     this->lefthand.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
-    this->lefthand.widgetName.offsetX = -static_cast<int32_t>(std::ceil(radius * 0.30f));
-    this->lefthand.widgetName.offsetY = static_cast<int32_t>(std::ceil((radius * 0.35f) + (weaponIcon * 0.5f) + 8.0f * resScale));
+    this->lefthand.widgetName.offsetX = -static_cast<int32_t>(std::round(20.0f * resScale));
+    this->lefthand.widgetName.offsetY = radius + static_cast<int32_t>(std::round(6.0f * resScale));
 
     this->righthand.widgetIcon.offsetX = centerX + radius;
     this->righthand.widgetIcon.offsetY = centerY;
     this->righthand.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
-    this->righthand.widgetName.offsetX = static_cast<int32_t>(std::ceil(radius * 0.30f));
-    this->righthand.widgetName.offsetY = static_cast<int32_t>(std::ceil((radius * 0.35f) + (weaponIcon * 0.5f) + 26.0f * resScale));
+    this->righthand.widgetName.offsetX = static_cast<int32_t>(std::round(20.0f * resScale));
+    this->righthand.widgetName.offsetY = radius + static_cast<int32_t>(std::round(28.0f * resScale));
 }
 
 void EquipmentManager::ResetToDefaults() {
@@ -1077,42 +1074,51 @@ void EquipmentManager::ResetToDefaults() {
     if (config) {
         config->Widget.Equipment.Armor.bgType = "_NONE";
         config->Widget.Equipment.Armor.bgAlpha = 0;
-        config->Widget.Equipment.Armor.bgSize = 40;
+        config->Widget.Equipment.Armor.bgSize = 24;
         config->Widget.Equipment.Armor.widgetSize = 20;
-        config->Widget.Equipment.Armor.fontSize = 80;
+        config->Widget.Equipment.Armor.fontSize = 50;
         config->Widget.Equipment.Armor.fontShadow = true;
 
-        config->Widget.Equipment.Weapon.bgType = "_NONE";
-        config->Widget.Equipment.Weapon.bgAlpha = 0;
-        config->Widget.Equipment.Weapon.bgSize = 40;
+        config->Widget.Equipment.Weapon.bgType = "_BACKGROUND4";
+        config->Widget.Equipment.Weapon.bgAlpha = 100;
+        config->Widget.Equipment.Weapon.bgSize = 63;
         config->Widget.Equipment.Weapon.widgetSize = 24;
-        config->Widget.Equipment.Weapon.fontSize = 80;
+        config->Widget.Equipment.Weapon.fontSize = 55;
         config->Widget.Equipment.Weapon.fontShadow = true;
 
-        config->Widget.Equipment.Shout.bgType = "_NONE";
-        config->Widget.Equipment.Shout.bgAlpha = 0;
-        config->Widget.Equipment.Shout.bgSize = 40;
+        config->Widget.Equipment.Shout.bgType = "_BACKGROUND4";
+        config->Widget.Equipment.Shout.bgAlpha = 100;
+        config->Widget.Equipment.Shout.bgSize = 63;
         config->Widget.Equipment.Shout.widgetSize = 24;
-        config->Widget.Equipment.Shout.fontSize = 80;
+        config->Widget.Equipment.Shout.fontSize = 55;
         config->Widget.Equipment.Shout.fontShadow = true;
 
-        config->Widget.Equipset.Normal.bgType = "_NONE";
-        config->Widget.Equipset.Normal.bgAlpha = 0;
+        config->Widget.Equipset.Normal.bgType = "_BACKGROUND4";
+        config->Widget.Equipset.Normal.bgAlpha = 100;
+        config->Widget.Equipset.Normal.bgSize = 63;
         config->Widget.Equipset.Normal.widgetSize = 24;
+        config->Widget.Equipset.Normal.fontSize = 55;
+        config->Widget.Equipset.Normal.fontShadow = true;
 
-        config->Widget.Equipset.Potion.bgType = "_NONE";
-        config->Widget.Equipset.Potion.bgAlpha = 0;
+        config->Widget.Equipset.Potion.bgType = "_BACKGROUND4";
+        config->Widget.Equipset.Potion.bgAlpha = 100;
+        config->Widget.Equipset.Potion.bgSize = 63;
         config->Widget.Equipset.Potion.widgetSize = 24;
+        config->Widget.Equipset.Potion.fontSize = 55;
+        config->Widget.Equipset.Potion.fontShadow = true;
 
-        config->Widget.Equipset.Cycle.bgType = "_NONE";
-        config->Widget.Equipset.Cycle.bgAlpha = 0;
+        config->Widget.Equipset.Cycle.bgType = "_BACKGROUND4";
+        config->Widget.Equipset.Cycle.bgAlpha = 100;
+        config->Widget.Equipset.Cycle.bgSize = 63;
         config->Widget.Equipset.Cycle.widgetSize = 24;
+        config->Widget.Equipset.Cycle.fontSize = 55;
+        config->Widget.Equipset.Cycle.fontShadow = true;
 
         config->Widget.General.hudDiamondEnable = true;
         config->Widget.General.hudDiamondLeftEnable = true;
         config->Widget.General.hudArmorEnable = true;
         config->Widget.General.hudArmorAutoStack = true;
-        config->Widget.General.showEmptySlots = false;
+        config->Widget.General.showEmptySlots = true;
         config->Widget.General.autoResolutionScale = true;
         config->SaveConfig();
     }
@@ -1131,10 +1137,22 @@ void EquipmentManager::ResetToDefaults() {
     this->righthand.widgetName.enable = true;
 
     this->shout.widgetIcon.offsetX = base_X;
-    this->lefthand.widgetIcon.offsetY = base_Y;
-    this->righthand.widgetIcon.offsetX = base_X + 40;
+    this->shout.widgetIcon.offsetY = base_Y - 40;
+    this->shout.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
+    this->shout.widgetName.offsetX = 0;
+    this->shout.widgetName.offsetY = -52;
+
     this->lefthand.widgetIcon.offsetX = base_X - 40;
-    AutoArrangeDiamondCluster();
+    this->lefthand.widgetIcon.offsetY = base_Y;
+    this->lefthand.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
+    this->lefthand.widgetName.offsetX = -20;
+    this->lefthand.widgetName.offsetY = 46;
+
+    this->righthand.widgetIcon.offsetX = base_X + 40;
+    this->righthand.widgetIcon.offsetY = base_Y;
+    this->righthand.widgetName.align = WidgetText::ALIGN_TYPE::CENTER;
+    this->righthand.widgetName.offsetX = 20;
+    this->righthand.widgetName.offsetY = 68;
 
     // Setup Armor default layout on the left side:
     this->armorStackBaseX = 35;
@@ -1145,7 +1163,7 @@ void EquipmentManager::ResetToDefaults() {
         this->armor[i].widgetIcon.offsetY = 0;
         this->armor[i].widgetName.enable = false;
         this->armor[i].widgetName.align = WidgetText::ALIGN_TYPE::LEFT;
-        this->armor[i].widgetName.offsetX = 28;
+        this->armor[i].widgetName.offsetX = 22;
         this->armor[i].widgetName.offsetY = 0;
     }
 

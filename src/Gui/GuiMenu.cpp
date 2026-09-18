@@ -488,6 +488,10 @@ void GuiMenu::DrawEquipment() {
         if (_size) {
             if (Draw::SliderInt(C_TRANSLATE("_WIDGET_SIZE"), _size, 0, 200, "%d%%",
                                 ImGuiSliderFlags_AlwaysClamp)) {
+                if (_bgSize && *_bgSize > 0) {
+                    float ratio = (_size == &config->Widget.Equipment.Armor.widgetSize) ? 1.667f : 2.625f;
+                    *_bgSize = static_cast<int>(std::round((float)(*_size) * ratio));
+                }
                 if (_size == &config->Widget.Equipment.Armor.widgetSize) {
                     if (config->Widget.General.hudArmorAutoStack) {
                         equipment->AutoArrangeArmorSlots();
@@ -624,6 +628,9 @@ void GuiMenu::DrawEquipment() {
         ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
         if (Draw::SliderInt(C_TRANSLATE("_WIDGET_SIZE"), &config->Widget.Equipment.Armor.widgetSize, 0, 200, "%d%%",
                             ImGuiSliderFlags_AlwaysClamp)) {
+            if (config->Widget.Equipment.Armor.bgAlpha > 0 && config->Widget.Equipment.Armor.bgType != "_NONE") {
+                config->Widget.Equipment.Armor.bgSize = static_cast<int>(std::round((float)config->Widget.Equipment.Armor.widgetSize * 1.667f));
+            }
             if (config->Widget.General.hudArmorAutoStack) {
                 equipment->AutoArrangeArmorSlots();
                 equipment->Save();
@@ -898,6 +905,10 @@ void GuiMenu::DrawConfig() {
         }
         if (Draw::SliderInt(C_TRANSLATE("_BACKGROUND_SIZE"), &_widget->bgSize, 0, 200, "%d%%",
                             ImGuiSliderFlags_AlwaysClamp)) {
+            if (_widget->bgAlpha > 0 && _widget->bgType != "_NONE") {
+                float ratio = (_widget == &config->Widget.Equipment.Armor) ? 1.667f : 2.625f;
+                _widget->widgetSize = static_cast<int>(std::round((float)_widget->bgSize / ratio));
+            }
             if (_widget == &config->Widget.Equipment.Armor && config->Widget.General.hudArmorAutoStack) {
                 equipment->AutoArrangeArmorSlots();
                 equipment->Save();
@@ -917,6 +928,10 @@ void GuiMenu::DrawConfig() {
         }
         if (Draw::SliderInt(C_TRANSLATE("_WIDGET_SIZE"), &_widget->widgetSize, 0, 200, "%d%%",
                             ImGuiSliderFlags_AlwaysClamp)) {
+            if (_widget->bgAlpha > 0 && _widget->bgType != "_NONE") {
+                float ratio = (_widget == &config->Widget.Equipment.Armor) ? 1.667f : 2.625f;
+                _widget->bgSize = static_cast<int>(std::round((float)_widget->widgetSize * ratio));
+            }
             if (_widget == &config->Widget.Equipment.Armor && config->Widget.General.hudArmorAutoStack) {
                 equipment->AutoArrangeArmorSlots();
                 equipment->Save();
@@ -1024,36 +1039,42 @@ void GuiMenu::DrawConfig() {
                     uint32_t selectedPreset = static_cast<uint32_t>(std::max(0, currentThemePreset));
                     if (Draw::Combo(themePresets, &selectedPreset, C_TRANSLATE("_THEME_PRESET_LABEL"))) {
                         currentThemePreset = static_cast<int>(selectedPreset);
-                        auto ApplyTheme = [&](const std::string& diamondBg, const std::string& squareBg, uint32_t armorAlpha = 100, int weaponSize = 34, int armorSize = 32, int weaponBgSize = 42, int armorBgSize = 40) {
+                        auto ApplyTheme = [&](const std::string& diamondBg, const std::string& squareBg, uint32_t armorAlpha = 100, int weaponSize = 24, int armorSize = 24, int weaponBgSize = 63, int armorBgSize = 40, int weaponFontSize = 55, int armorFontSize = 50) {
                             config->Widget.Equipment.Weapon.bgType = diamondBg;
-                            config->Widget.Equipment.Weapon.bgAlpha = armorAlpha;
+                            config->Widget.Equipment.Weapon.bgAlpha = 100;
                             config->Widget.Equipment.Weapon.bgSize = weaponBgSize;
                             config->Widget.Equipment.Weapon.widgetSize = weaponSize;
+                            config->Widget.Equipment.Weapon.fontSize = weaponFontSize;
 
                             config->Widget.Equipment.Shout.bgType = diamondBg;
-                            config->Widget.Equipment.Shout.bgAlpha = armorAlpha;
+                            config->Widget.Equipment.Shout.bgAlpha = 100;
                             config->Widget.Equipment.Shout.bgSize = weaponBgSize;
                             config->Widget.Equipment.Shout.widgetSize = weaponSize;
+                            config->Widget.Equipment.Shout.fontSize = weaponFontSize;
 
                             config->Widget.Equipment.Armor.bgType = squareBg;
                             config->Widget.Equipment.Armor.bgAlpha = armorAlpha;
                             config->Widget.Equipment.Armor.bgSize = armorBgSize;
-                            config->Widget.Equipment.Armor.widgetSize = armorSize;
+                            config->Widget.Equipment.Armor.widgetSize = (armorAlpha == 0 ? 20 : armorSize);
+                            config->Widget.Equipment.Armor.fontSize = armorFontSize;
 
                             config->Widget.Equipset.Normal.bgType = diamondBg;
-                            config->Widget.Equipset.Normal.bgAlpha = armorAlpha;
+                            config->Widget.Equipset.Normal.bgAlpha = 100;
                             config->Widget.Equipset.Normal.bgSize = weaponBgSize;
                             config->Widget.Equipset.Normal.widgetSize = weaponSize;
+                            config->Widget.Equipset.Normal.fontSize = weaponFontSize;
 
                             config->Widget.Equipset.Potion.bgType = diamondBg;
-                            config->Widget.Equipset.Potion.bgAlpha = armorAlpha;
+                            config->Widget.Equipset.Potion.bgAlpha = 100;
                             config->Widget.Equipset.Potion.bgSize = weaponBgSize;
                             config->Widget.Equipset.Potion.widgetSize = weaponSize;
+                            config->Widget.Equipset.Potion.fontSize = weaponFontSize;
 
                             config->Widget.Equipset.Cycle.bgType = diamondBg;
-                            config->Widget.Equipset.Cycle.bgAlpha = armorAlpha;
+                            config->Widget.Equipset.Cycle.bgAlpha = 100;
                             config->Widget.Equipset.Cycle.bgSize = weaponBgSize;
                             config->Widget.Equipset.Cycle.widgetSize = weaponSize;
+                            config->Widget.Equipset.Cycle.fontSize = weaponFontSize;
 
                             if (config->Widget.General.hudArmorAutoStack) {
                                 equipment->AutoArrangeArmorSlots();
@@ -1066,7 +1087,7 @@ void GuiMenu::DrawConfig() {
 
                         switch (selectedPreset) {
                             case 0:
-                                ApplyTheme("_NONE", "_NONE", 0, 24, 20, 40, 40);
+                                ApplyTheme("_BACKGROUND4", "_NONE", 0, 24, 20, 63, 24, 55, 50);
                                 break;
                             case 1:
                                 ApplyTheme("_BG_NORDIC_DIAMOND", "_BG_NORDIC_SQUARE");
