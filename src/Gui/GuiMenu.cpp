@@ -871,6 +871,13 @@ void GuiMenu::DrawConfig() {
                         TRANSLATE("_THEME_PRESET_ARCANE"),
                         TRANSLATE("_THEME_PRESET_GOTHIC"),
                         TRANSLATE("_THEME_PRESET_DRAGON"),
+                        TRANSLATE("_THEME_PRESET_OBLIVION"),
+                        TRANSLATE("_THEME_PRESET_FALMER"),
+                        TRANSLATE("_THEME_PRESET_SNOWELF"),
+                        TRANSLATE("_THEME_PRESET_HIGHELF"),
+                        TRANSLATE("_THEME_PRESET_DWEMER"),
+                        TRANSLATE("_THEME_PRESET_DUNMER"),
+                        TRANSLATE("_THEME_PRESET_NIGHTINGALE"),
                         TRANSLATE("_THEME_PRESET_CLASSIC_DIAMOND"),
                         TRANSLATE("_THEME_PRESET_CLASSIC_SQUARE"),
                         TRANSLATE("_THEME_PRESET_NONE")
@@ -911,12 +918,33 @@ void GuiMenu::DrawConfig() {
                                 ApplyTheme("_BG_DRAGON", "_BG_NORDIC_SQUARE");
                                 break;
                             case 8:
-                                ApplyTheme("_BACKGROUND4", "_BACKGROUND4");
+                                ApplyTheme("_BG_OBLIVION_DIAMOND", "_BG_OBLIVION_CIRCLE");
                                 break;
                             case 9:
-                                ApplyTheme("_BACKGROUND2", "_BACKGROUND2");
+                                ApplyTheme("_BG_FALMER_DIAMOND", "_BG_FALMER_SQUARE");
                                 break;
                             case 10:
+                                ApplyTheme("_BG_SNOWELF_DIAMOND", "_BG_SNOWELF_SQUARE");
+                                break;
+                            case 11:
+                                ApplyTheme("_BG_HIGHELF_DIAMOND", "_BG_HIGHELF_SQUARE");
+                                break;
+                            case 12:
+                                ApplyTheme("_BG_DWEMER_DIAMOND", "_BG_DWEMER_SQUARE");
+                                break;
+                            case 13:
+                                ApplyTheme("_BG_DUNMER_DIAMOND", "_BG_DUNMER_SQUARE");
+                                break;
+                            case 14:
+                                ApplyTheme("_BG_NIGHTINGALE_DIAMOND", "_BG_NIGHTINGALE_SQUARE");
+                                break;
+                            case 15:
+                                ApplyTheme("_BACKGROUND4", "_BACKGROUND4");
+                                break;
+                            case 16:
+                                ApplyTheme("_BACKGROUND2", "_BACKGROUND2");
+                                break;
+                            case 17:
                                 ApplyTheme("_NONE", "_NONE", 0);
                                 break;
                             default:

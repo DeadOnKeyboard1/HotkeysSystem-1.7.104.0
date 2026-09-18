@@ -260,7 +260,21 @@ namespace Draw {
             "_BG_ARCANE_CIRCLE",
             "_BG_GOTHIC_DIAMOND",
             "_BG_GOTHIC_SQUARE",
-            "_BG_DRAGON"
+            "_BG_DRAGON",
+            "_BG_OBLIVION_DIAMOND",
+            "_BG_OBLIVION_CIRCLE",
+            "_BG_FALMER_DIAMOND",
+            "_BG_FALMER_SQUARE",
+            "_BG_SNOWELF_DIAMOND",
+            "_BG_SNOWELF_SQUARE",
+            "_BG_HIGHELF_DIAMOND",
+            "_BG_HIGHELF_SQUARE",
+            "_BG_DWEMER_DIAMOND",
+            "_BG_DWEMER_SQUARE",
+            "_BG_DUNMER_DIAMOND",
+            "_BG_DUNMER_SQUARE",
+            "_BG_NIGHTINGALE_DIAMOND",
+            "_BG_NIGHTINGALE_SQUARE"
         };
 
         std::vector<std::string> keys;

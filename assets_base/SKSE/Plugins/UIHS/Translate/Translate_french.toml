@@ -214,3 +214,26 @@ _THEME_PRESET_DRAGON = 'Dragon Impérial de Skyrim'
 _THEME_PRESET_CLASSIC_DIAMOND = 'Losange Classique'
 _THEME_PRESET_CLASSIC_SQUARE = 'Carré Classique'
 _THEME_PRESET_NONE = 'Aucun (Transparent)'
+
+# Lore-Based Themes
+_BG_OBLIVION_DIAMOND = "Porte d'Oblivion (Losange)"
+_BG_OBLIVION_CIRCLE = "Porte d'Oblivion (Cercle)"
+_BG_FALMER_DIAMOND = 'Chitine Falmer (Losange)'
+_BG_FALMER_SQUARE = 'Chitine Falmer (Carré)'
+_BG_SNOWELF_DIAMOND = 'Elfe des Neiges (Losange)'
+_BG_SNOWELF_SQUARE = 'Elfe des Neiges (Carré)'
+_BG_HIGHELF_DIAMOND = 'Haut-Elfe (Losange)'
+_BG_HIGHELF_SQUARE = 'Haut-Elfe (Carré)'
+_BG_DWEMER_DIAMOND = 'Cuivre Dwemer (Losange)'
+_BG_DWEMER_SQUARE = 'Cuivre Dwemer (Carré)'
+_BG_DUNMER_DIAMOND = "Moule d'os Dunmer (Losange)"
+_BG_DUNMER_SQUARE = "Moule d'os Dunmer (Carré)"
+_BG_NIGHTINGALE_DIAMOND = 'Ombre de Rossignol (Losange)'
+_BG_NIGHTINGALE_SQUARE = 'Ombre de Rossignol (Carré)'
+_THEME_PRESET_OBLIVION = "Porte d'Oblivion / Daedra"
+_THEME_PRESET_FALMER = 'Chitine Falmer'
+_THEME_PRESET_SNOWELF = 'Elfe des Neiges / Falmer Antique'
+_THEME_PRESET_HIGHELF = 'Haut-Elfe / Altmer'
+_THEME_PRESET_DWEMER = 'Horlogerie Dwemer'
+_THEME_PRESET_DUNMER = 'Morrowind / Dunmer'
+_THEME_PRESET_NIGHTINGALE = 'Rossignol / Nocturne'
