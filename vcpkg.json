@@ -5,7 +5,7 @@
     "port-version": 0,
     "description": "Hotkeys System SKSE plugin for Skyrim SE.",
     "homepage": "",
-    "license": "Apache-2.0",
+    "license": "GPL-3.0-or-later",
     "features": {
         "plugin": {
             "description": "Build the SKSE plugin.",
